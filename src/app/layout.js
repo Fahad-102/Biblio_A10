@@ -1,17 +1,14 @@
-import { Geist, Geist_Mono } from "next/font/google";
+import { Plus_Jakarta_Sans } from "next/font/google";
 import "./globals.css";
-import Navbar from "./component/Navbar";
-import Footer from "./component/Footer";
+import Navbar from "@/component/Navbar";
+import Footer from "@/component/Footer";
 
-const geistSans = Geist({
-  variable: "--font-geist-sans",
+const jakartaSans = Plus_Jakarta_Sans({
+  variable: "--font-jakarta",
   subsets: ["latin"],
 });
 
-const geistMono = Geist_Mono({
-  variable: "--font-geist-mono",
-  subsets: ["latin"],
-});
+
 
 export const metadata = {
   title: "Create Next App",
@@ -22,15 +19,15 @@ export default function RootLayout({ children }) {
   return (
     <html
       lang="en"
-      className={`${geistSans.variable} ${geistMono.variable} h-full antialiased`}
+      className={`${jakartaSans.variable} h-full antialiased`}
     >
       <body className="min-h-full flex flex-col">
-          <Navbar/>
-          <main>
-          {children}
-          </main>
-          <Footer/>
-          </body>
+        <Navbar/>
+        <main>
+        {children}
+        </main>
+        <Footer/>
+        </body>
     </html>
   );
 }
