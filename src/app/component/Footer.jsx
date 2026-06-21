@@ -4,7 +4,7 @@ import Link from "next/link";
 import { Button } from "@heroui/react";
 import { FaSquareFacebook, FaSquareXTwitter } from "react-icons/fa6";
 
-export default function AppFooter() {
+export default function Footer() {
   const [email, setEmail] = useState("");
 
   const handleNewsletterSubmit = (e) => {
@@ -22,8 +22,8 @@ export default function AppFooter() {
         {/* Column 1: Brand & About */}
         <div className="flex flex-col gap-4">
           <Link href="/" className="flex items-center">
-            <span className="text-2xl font-black tracking-wider bg-gradient-to-r from-violet-600 to-indigo-600 bg-clip-text text-transparent">
-              Biblio<span className="text-foreground">Drop</span>
+            <span className="text-2xl font-black tracking-wider bg-linear-to-r from-violet-600 to-indigo-600 bg-clip-text text-transparent">
+              Biblio<span className="text-foreground"><span className="text-red-800">D</span>rop</span>
             </span>
           </Link>
           <p className="text-sm text-default-500 leading-relaxed">
