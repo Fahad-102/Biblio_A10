@@ -1,24 +1,33 @@
 "use client";
 import React, { useState } from "react";
-import { Button } from "@heroui/react";
 import Link from "next/link";
-import { usePathname } from "next/navigation";
+import { usePathname, useRouter } from "next/navigation";
+import { authClient, useSession } from "../lib/auth-client";
+import Image from "next/image";
 
 export default function Navbar() {
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
   const [isProfileOpen, setIsProfileOpen] = useState(false);
   const pathname = usePathname();
+  const router = useRouter();
+  const { data: session, isPending } = useSession();
 
-  // আপনার ইচ্ছা মতো ডিজাইন টেস্ট করার জন্য স্ট্যাটিক ইউজার অবজেক্ট
-  // loggedIn: true করলে প্রোফাইল ও Logout দেখাবে। false করলে Sign In / Sign Up দেখাবে।
-  const user = {
-    loggedIn: false, 
-    name: "Guest User",
-    email: "guest@example.com",
-    avatar: "", // ইমেজ না থাকলে নিচে থাকা ডিফল্ট SVG আইকনটি শো করবে
-    role: "user" 
+  const handleSignOut = async () => {
+    try {
+      await authClient.signOut({
+        fetchOptions: {
+          onSuccess: () => {
+            setIsProfileOpen(false);
+            router.push("/signin"); 
+          },
+        },
+      });
+    } catch (error) {
+      console.error("Sign-Out Error:", error);
+    }
   };
 
+  const user = session?.user;
   const isActive = (path) => pathname === path;
 
   return (
@@ -57,22 +66,32 @@ export default function Navbar() {
           </Link>
         </div>
 
-        {/* Right Menu (Profile Avatar with Solid White Dropdown) */}
+        {/* Right Menu */}
         <div className="flex items-center gap-4">
+          {user?.image ?
+        <>
+                    <p className="text-purple-800">Hello,{user?.name}</p>
+        </>  
+        :
+        <>
+        </>
+        }
           <div className="relative">
+                
             {/* Avatar Trigger Button */}
             <button 
               onClick={() => setIsProfileOpen(!isProfileOpen)}
               className="focus:outline-none ring-2 ring-slate-200 hover:ring-indigo-500 rounded-full p-0.5 transition-transform active:scale-95 flex items-center justify-center bg-default-100"
             >
-              {user.avatar ? (
-                <img 
-                  src={user.avatar} 
-                  alt={user.name} 
+              {user?.image ? (
+                <Image
+                  height={32}
+                  width={32}
+                  src={user?.image} 
+                  alt={user?.name || "User Avatar"} 
                   className="w-8 h-8 rounded-full object-cover"
                 />
               ) : (
-                // ইউজার ইমেজ না থাকলে বা লগআউট মোডে থাকলে এই সুন্দর ডিফল্ট আইকনটি দেখাবে
                 <div className="w-8 h-8 rounded-full flex items-center justify-center text-default-600">
                   <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                     <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z" />
@@ -85,24 +104,21 @@ export default function Navbar() {
             {isProfileOpen && (
               <div className="absolute right-0 mt-2 w-56 bg-white text-slate-900 border border-slate-200 rounded-xl shadow-xl py-2 z-50 animate-in fade-in slide-in-from-top-1 duration-150">
                 
-                {/* ইউজার লগইন থাকলে তার প্রোফাইল ইমেইল ও রোল দেখাবে */}
-                {user.loggedIn && (
-                  <div className="px-4 py-2 border-b border-slate-100">
-                    <p className="text-xs text-slate-400 font-medium">Signed in as</p>
-                    <p className="text-sm font-bold text-indigo-600 truncate">{user.email}</p>
-                    <span className="inline-block mt-1 text-[10px] uppercase font-bold tracking-wider bg-indigo-50 text-indigo-600 px-2 py-0.5 rounded-full">
-                      {user.role}
-                    </span>
-                  </div>
-                )}
+                {isPending ? (
+                  <div className="px-4 py-2 text-sm text-slate-400">Loading...</div>
+                ) : session ? (
+                  <>
+                    <div className="px-4 py-2 border-b border-slate-100">
+                      <p className="text-xs text-slate-400 font-medium">Signed in as</p>
+                      <p className="text-sm font-bold text-indigo-600 truncate">{user?.email}</p>
+                      <span className="inline-block mt-1 text-[10px] uppercase font-bold tracking-wider bg-indigo-50 text-indigo-600 px-2 py-0.5 rounded-full">
+                        {user?.role}
+                      </span>
+                    </div>
 
-                {/* ড্রপডাউন বাটন এবং অথ লিংকসমূহ */}
-                <div className="flex flex-col p-1 gap-0.5">
-                  {user.loggedIn ? (
-                    // ইউজার লগইন থাকলে এই অপশনগুলো দেখাবে
-                    <>
+                    <div className="flex flex-col p-1 gap-0.5">
                       <Link 
-                        href={`/dashboard/${user.role}`}
+                        href={`/dashboard/${user?.role || ""}`}
                         className="block px-3 py-2 text-sm font-medium rounded-lg text-slate-700 hover:bg-slate-50 transition-colors"
                         onClick={() => setIsProfileOpen(false)}
                       >
@@ -110,32 +126,30 @@ export default function Navbar() {
                       </Link>
                       <button 
                         className="w-full text-left px-3 py-2 text-sm font-medium rounded-lg text-red-600 hover:bg-red-50 transition-colors"
-                        onClick={() => setIsProfileOpen(false)}
+                        onClick={handleSignOut}
                       >
                         Log Out
                       </button>
-                    </>
-                  ) : (
-                    // ইউজার লগআউট বা গেস্ট মোডে থাকলে এই অপশনগুলো দেখাবে
-                    <>
-                      <Link 
-                        href="/login" 
-                        className="block px-3 py-2 text-sm font-medium rounded-lg text-slate-700 hover:bg-slate-50 transition-colors"
-                        onClick={() => setIsProfileOpen(false)}
-                      >
-                        Sign In (Login)
-                      </Link>
-                      <Link 
-                        href="/signup" 
-                        className="block px-3 py-2 text-sm font-semibold rounded-lg text-indigo-600 hover:bg-indigo-50 transition-colors"
-                        onClick={() => setIsProfileOpen(false)}
-                      >
-                        Sign Up (Register)
-                      </Link>
-                    </>
-                  )}
-                </div>
-
+                    </div>
+                  </>
+                ) : (
+                  <div className="flex flex-col p-1 gap-0.5">
+                    <Link 
+                      href="/signin" 
+                      className="block px-3 py-2 text-sm font-medium rounded-lg text-slate-700 hover:bg-slate-50 transition-colors"
+                      onClick={() => setIsProfileOpen(false)}
+                    >
+                      Sign In (Login)
+                    </Link>
+                    <Link 
+                      href="/signup" 
+                      className="block px-3 py-2 text-sm font-semibold rounded-lg text-indigo-600 hover:bg-indigo-50 transition-colors"
+                      onClick={() => setIsProfileOpen(false)}
+                    >
+                      Sign Up (Register)
+                    </Link>
+                  </div>
+                )}
               </div>
             )}
           </div>

@@ -9,24 +9,44 @@ import {
   Input,
   Label,
   TextField,
-} from "@heroui/react";
+} from "@heroui/react"; 
 import { authClient } from "../lib/auth-client";
+import { FcGoogle } from "react-icons/fc";
+import { useRouter } from "next/navigation";
 
 export default function SignUpPage() {
+  const router = useRouter();
+
   const onSubmit = async (e) => {
     e.preventDefault();
-    const name = e.target.name.value;
-    const email = e.target.email.value;
-    const password = e.target.password.value;
-    const image = e.target.image.value;
+    const formData = new FormData(e.currentTarget);
+    const user = Object.fromEntries(formData.entries());
 
-    const {data,error} = await authClient.signUp.email({
-        name,
-        email,
-        password,
-        image
-    })
-    console.log({data,error})
+    const { data, error } = await authClient.signUp.email({
+      name: user?.name,
+      email: user?.email,
+      password: user?.password,
+      image: user?.image,
+      role: user?.role.toLowerCase(),
+      plan: 'free',
+    }, {
+      onSuccess: () => {
+        router.push("/signin");
+      }
+    });
+
+    console.log({ data, error });
+  };
+
+  const handleGoogleSignUp = async () => {
+    try {
+      await authClient.signIn.social({
+        provider: "google",
+        callbackURL: "/",
+      });
+    } catch (error) {
+      console.error(error);
+    }
   };
 
   return (
@@ -54,17 +74,30 @@ export default function SignUpPage() {
             if (!/^[A-Z0-9._%+-]+@[A-Z0-9.-]+\.[A-Z]{2,}$/i.test(value)) {
               return "Please enter a valid email address";
             }
-
             return null;
           }}
         >
           <Label>Email</Label>
-          <Input placeholder="john@example.com" />
+          <Input placeholder="Enter your Email" />
           <FieldError />
         </TextField>
 
+        <div className="flex flex-col gap-1.5">
+          <Label className="text-sm font-medium">Signup As</Label>
+          <select
+            required
+            name="role"
+            defaultValue="buyer"
+            className="w-full bg-zinc-100 hover:bg-zinc-200 focus:bg-zinc-100 border border-zinc-200 focus:border-zinc-500 rounded-lg p-2.5 text-sm outline-none transition-all cursor-pointer"
+          >
+            <option value="" disabled hidden>Choose a role</option>
+            <option value="librarian">Librarian</option>
+            <option value="buyer">Buyer</option>
+          </select>
+        </div>
+
         <TextField
-          isRequired
+          required
           minLength={8}
           name="password"
           type="password"
@@ -78,12 +111,11 @@ export default function SignUpPage() {
             if (!/[0-9]/.test(value)) {
               return "Password must contain at least one number";
             }
-
             return null;
           }}
         >
           <Label>Password</Label>
-          <Input placeholder="Enter your password" />
+          <Input placeholder="Enter your password" type="password" />
           <Description>
             Must be at least 8 characters with 1 uppercase and 1 number
           </Description>
@@ -99,6 +131,22 @@ export default function SignUpPage() {
             Reset
           </Button>
         </div>
+
+        <div className="relative flex py-2 items-center">
+          <div className="grow border-t border-zinc-200"></div>
+          <span className="shrink mx-4 text-zinc-400 text-xs uppercase">OR</span>
+          <div className="grow border-t border-zinc-200"></div>
+        </div>
+
+        <Button 
+          type="button" 
+          variant="bordered" 
+          className="w-full font-medium"
+          onClick={handleGoogleSignUp}
+        >
+          <FcGoogle />
+          Sign Up with Google
+        </Button>
       </Form>
     </Card>
   );

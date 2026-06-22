@@ -1,3 +1,4 @@
+
 import { Plus_Jakarta_Sans } from "next/font/google";
 import "./globals.css";
 import Navbar from "./component/Navbar";
@@ -21,6 +22,7 @@ export default function RootLayout({ children }) {
     <html
       lang="en"
       className={`${jakartaSans.variable} h-full antialiased`}
+      suppressHydrationWarning
     >
       <body className="min-h-full flex flex-col">
         <Navbar/>
