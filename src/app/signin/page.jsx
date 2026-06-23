@@ -103,7 +103,7 @@ export default function SignInPage() {
           <FieldError />
         </TextField>
 
-        <div className="flex gap-2">
+        <div className="flex justify-center gap-2">
           <Button type="submit">
             <Check />
             Submit

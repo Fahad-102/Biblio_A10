@@ -1,10 +1,13 @@
+import Link from "next/link";
 import DashboardSidebar from "../component/dashboard/DashboardSidebar";
+import DashboardNavbar from "../component/dashboard/DashboardNavbar";
 
 export default function RootLayout({ children }) {
   return (
     <div className="flex h-screen bg-background w-full overflow-hidden">
       
       {/* 1. Sidebar Area */}
+     
      <DashboardSidebar/>
 
       {/* 2. Main Content Right Wrapper */}
@@ -15,8 +18,8 @@ export default function RootLayout({ children }) {
           <div className="max-w-7xl mx-auto w-full flex flex-col gap-4">
             
             {/* Navbar Area */}
-            <div className="w-full border border-green-500 p-5 bg-white ">
-              Navbar
+            <div className="w-full bg-white ">
+              <DashboardNavbar />
             </div>
             
             {/* Page Content */}
