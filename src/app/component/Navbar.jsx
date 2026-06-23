@@ -9,6 +9,9 @@ export default function Navbar() {
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
   const [isProfileOpen, setIsProfileOpen] = useState(false);
   const pathname = usePathname();
+  if(pathname.includes('dashboard')){
+    return null;
+  }
   const router = useRouter();
   const { data: session, isPending } = useSession();
 

@@ -3,10 +3,14 @@ import React, { useState } from "react";
 import Link from "next/link";
 import { Button } from "@heroui/react";
 import { FaSquareFacebook, FaSquareXTwitter } from "react-icons/fa6";
+import { usePathname } from "next/navigation";
 
 export default function Footer() {
   const [email, setEmail] = useState("");
-
+  const pathname= usePathname()
+  if(pathname.includes('dashboard')){
+    return null;
+  }
   const handleNewsletterSubmit = (e) => {
     e.preventDefault();
     if (email) {
