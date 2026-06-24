@@ -87,12 +87,12 @@ export default function SignUpPage() {
           <select
             required
             name="role"
-            defaultValue="buyer"
+            defaultValue={user?.role}
             className="w-full bg-zinc-100 hover:bg-zinc-200 focus:bg-zinc-100 border border-zinc-200 focus:border-zinc-500 rounded-lg p-2.5 text-sm outline-none transition-all cursor-pointer"
           >
             <option value="" disabled hidden>Choose a role</option>
             <option value="librarian">Librarian</option>
-            <option value="buyer">Buyer</option>
+            <option value="user">User</option>
           </select>
         </div>
 

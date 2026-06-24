@@ -9,11 +9,12 @@ export default function Navbar() {
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
   const [isProfileOpen, setIsProfileOpen] = useState(false);
   const pathname = usePathname();
+  const router = useRouter();
+  const { data: session, isPending } = useSession();
+  const user = session?.user;
   if(pathname.includes('dashboard')){
     return null;
   }
-  const router = useRouter();
-  const { data: session, isPending } = useSession();
 
   const handleSignOut = async () => {
     try {
@@ -30,7 +31,6 @@ export default function Navbar() {
     }
   };
 
-  const user = session?.user;
   const isActive = (path) => pathname === path;
 
   return (
@@ -66,6 +66,16 @@ export default function Navbar() {
             }`}
           >
             Browse Books
+          </Link>
+          <Link 
+            href="/subscription" 
+            className={`text-sm font-semibold px-4 py-2 rounded-xl transition-all duration-200 ${
+              isActive('/subscription') 
+                ? 'bg-primary/10 text-red-500' 
+                : 'text-default-600 hover:bg-default-100 hover:text-foreground' 
+            }`}
+          >
+            Subscription
           </Link>
         </div>
 

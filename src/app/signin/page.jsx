@@ -1,4 +1,5 @@
 "use client";
+import React, { useState } from "react";
 import { Check } from "@gravity-ui/icons";
 import {
   Button,
@@ -10,27 +11,40 @@ import {
   Label,
   TextField,
 } from "@heroui/react";
-import { authClient } from "../lib/auth-client";
+import { authClient, useSession } from "../lib/auth-client";
 import { FcGoogle } from "react-icons/fc";
 import Link from "next/link";
 
 export default function SignInPage() {
+  const [errorMessage, setErrorMessage] = useState("");
+  const { data: session } = useSession();
+  const user = session?.user;
+
   const onSubmit = async (e) => {
     e.preventDefault();
+    setErrorMessage("");
     
-    const formData = new FormData(e.currentTarget)
-    const user = Object.fromEntries(formData.entries())
+    const formData = new FormData(e.currentTarget);
+    const userFormData = Object.fromEntries(formData.entries());
     
-    const { data, error } = await authClient.signIn.email({
-      email: user.email,
-      password: user.password,
-      role: user.role.toLowerCase(),
+    await authClient.signIn.email({
+      email: userFormData.email,
+      password: userFormData.password,
+      role: userFormData.role.toLowerCase(),
       callbackURL: "/",
+      fetchOptions: {
+        onError: (ctx) => {
+          const msg = ctx.error.message || "Invalid email or password";
+          setErrorMessage(msg);
+          alert(msg);
+        },
+        onSuccess: () => {
+          window.location.href = "/";
+        }
+      }
     });
-    console.log({ data, error });
   };
-
-
+  
   const handleGoogleSignIn = async () => {
     try {
       await authClient.signIn.social({
@@ -47,6 +61,12 @@ export default function SignInPage() {
       <h1 className="text-center text-2xl font-bold">Sign In</h1>
 
       <Form className="flex w-96 mx-auto flex-col gap-4" onSubmit={onSubmit}>
+        {errorMessage && (
+          <div className="p-3 bg-red-100 text-red-700 border border-red-200 rounded-lg text-sm text-center font-medium">
+            ⚠️ {errorMessage}
+          </div>
+        )}
+
         <TextField
           isRequired
           name="email"
@@ -68,12 +88,12 @@ export default function SignInPage() {
           <select
             required
             name="role"
-            defaultValue="buyer"
+            defaultValue={user?.role || "buyer"}
             className="w-full bg-zinc-100 hover:bg-zinc-200 focus:bg-zinc-100 border border-zinc-200 focus:border-zinc-500 rounded-lg p-2.5 text-sm outline-none transition-all cursor-pointer"
           >
             <option value="" disabled hidden>Choose a role</option>
             <option value="librarian">Librarian</option>
-            <option value="buyer">Buyer</option>
+            <option value="user">user</option>
           </select>
         </div>
 
@@ -119,26 +139,26 @@ export default function SignInPage() {
           <span className="shrink mx-4 text-zinc-400 text-xs uppercase">OR</span>
           <div className="grow border-t border-zinc-200"></div>
         </div>
+        
         <div>
-          <Link href="/signup" >
-          <Button 
-          type="button"
-          variant="primary"
-          className="w-full font-medium"
-          >
-            SignUp
-          </Button>
+          <Link href="/signup">
+            <Button 
+              type="button"
+              variant="primary"
+              className="w-full font-medium"
+            >
+              SignUp
+            </Button>
           </Link>
         </div>
 
-    
         <Button 
           type="button" 
           variant="bordered" 
           className="w-full font-medium"
           onClick={handleGoogleSignIn}
         >
-            <FcGoogle />
+          <FcGoogle />
           Sign In with Google
         </Button>
       </Form>

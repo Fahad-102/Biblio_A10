@@ -2,21 +2,31 @@
 import React, { useState, useEffect, useRef } from "react";
 import Link from "next/link";
 import Image from "next/image";
-import { usePathname } from "next/navigation";
-import { useSession } from "@/app/lib/auth-client";
+import { usePathname, useRouter } from "next/navigation";
+import { authClient, useSession } from "@/app/lib/auth-client";
 
 export default function DashboardNavbar() {
   const pathname = usePathname();
   const [isOpen, setIsOpen] = useState(false);
   const dropdownRef = useRef(null);
+   const router = useRouter();
   const { data: session, isPending } = useSession();
    const user = session?.user;
+   const role = user?.role;
+    const handleSignOut = async () => {
+    try {
+      await authClient.signOut({
+        fetchOptions: {
+          onSuccess: () => {
+            router.push("/signin"); 
+          },
+        },
+      });
+    } catch (error) {
+      console.error("Sign-Out Error:", error);
+    }
+  };
 
-  const menuItems = [
-    { name: "Overview", href: "/dashboard" },
-    { name: "My Borrowed Books", href: "/dashboard/borrowed" },
-    { name: "Add New Book", href: "/dashboard/add-book" }
-  ];
 
   useEffect(() => {
     function handleClickOutside(event) {
@@ -40,23 +50,11 @@ export default function DashboardNavbar() {
         </Link>
       </div>
 
-      <div className="hidden md:flex items-center gap-2">
-        {menuItems.map((item, index) => {
-          const isActive = pathname === item.href;
-          return (
-            <Link
-              key={index}
-              href={item.href}
-              className={`px-4 py-2 font-semibold text-sm rounded-xl transition-all ${
-                isActive 
-                  ? "bg-primary/10 text-primary" 
-                  : "text-default-500 hover:text-foreground hover:bg-default-100"
-              }`}
-            >
-              {item.name}
-            </Link>
-          );
-        })}
+      <div>
+        <h1 className="text-xl font-bold text-slate-800">
+  Welcome back, <span className="text-indigo-600">{user?.name || "Reader"}</span>! 👋
+</h1>
+<p>Here is what's happening with your library today.</p>
       </div>
 
       <div className="flex items-center gap-2 relative" ref={dropdownRef}>
@@ -99,10 +97,7 @@ export default function DashboardNavbar() {
             
             <div className="border-t border-divider/50 mt-1 pt-1">
               <button 
-                onClick={() => {
-                  setIsOpen(false);
-                  alert("Logging out...");
-                }}
+                onClick={handleSignOut}
                 className="flex w-full px-4 py-2 text-sm text-danger hover:bg-danger/10 transition-colors font-bold text-left"
               >
                 Log Out

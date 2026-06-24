@@ -14,7 +14,7 @@ export default async function DashboardSidebar() {
   }) 
 
   const user = session?.user
-  const role = user?.role || "buyer"
+  const role = user?.role || "user"
   console.log(user)
   
    const dashboarditems ={
@@ -24,11 +24,11 @@ export default async function DashboardSidebar() {
         {icon: TbAsset, label: "Books", link:'/dashboard/librarian/books'},
         {icon: BiMoney, label: "Transaction" , link:'/dashboard/librarian/transaction'},
     ],
-     buyer:[
-        {icon: House, label: "Home", link:'/dashboard/buyer'},
-        {icon: FaChartArea, label: "Overview", link:'/dashboard/buyer/chart'},
-        {icon: Book, label: "Books", link:'/dashboard/buyer/books'},
-        {icon: BiMoney, label: "Transaction" , link:'/dashboard/buyer/transaction'},
+     user:[
+        {icon: House, label: "Home", link:'/dashboard/user'},
+        {icon: FaChartArea, label: "Overview", link:'/dashboard/user/chart'},
+        {icon: Book, label: "Books", link:'/dashboard/user/books'},
+        {icon: BiMoney, label: "Transaction" , link:'/dashboard/user/transaction'},
     ],
      admin:[
         {icon: House, label: "Home", link:'/dashboard/admin'},
@@ -38,17 +38,8 @@ export default async function DashboardSidebar() {
         {icon: BiMoney, label: "Transaction" , link:'/dashboard/admin/transaction'},
     ],
    }
-   
-   
-  const navItems = dashboarditems[role]||[]
-  
-  //   {icon: House, label: "Home"},
-  //   {icon: Magnifier, label: "Search"},
-  //   {icon: Bell, label: "Notifications"},
-  //   {icon: Envelope, label: "Messages"},
-  //   {icon: Person, label: "Profile"},
-  //   {icon: Gear, label: "Settings"},
-  // ];
+   const navItems = dashboarditems[role]||[]
+  console.log(navItems)
 
   return (
     <Drawer >
