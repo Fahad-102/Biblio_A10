@@ -12,7 +12,8 @@ export default function Navbar() {
   const router = useRouter();
   const { data: session, isPending } = useSession();
   const user = session?.user;
-  if(pathname.includes('dashboard')){
+
+  if (pathname.includes('dashboard')) {
     return null;
   }
 
@@ -32,6 +33,12 @@ export default function Navbar() {
   };
 
   const isActive = (path) => pathname === path;
+
+  const getDashboardLink = () => {
+    if (!user?.role) return "/dashboard/user";
+    if (user.role === "user_pro") return "/dashboard/user";
+    return `/dashboard/${user.role}`;
+  };
 
   return (
     <nav className="w-full bg-background/70 backdrop-blur-md border-b border-divider sticky top-0 z-50 px-6 py-3">
@@ -81,27 +88,24 @@ export default function Navbar() {
 
         {/* Right Menu */}
         <div className="flex items-center gap-4">
-          {user?.image ?
-        <>
-                    <p className="text-purple-800">Hello,{user?.name}</p>
-        </>  
-        :
-        <>
-        </>
-        }
+          {user?.name && (
+            <p className="text-purple-800 text-sm font-medium hidden sm:block">
+              Hello, <span className="font-semibold">{user.name}</span>
+            </p>
+          )}
+
           <div className="relative">
-                
             {/* Avatar Trigger Button */}
             <button 
               onClick={() => setIsProfileOpen(!isProfileOpen)}
-              className="focus:outline-none ring-2 ring-slate-200 hover:ring-indigo-500 rounded-full p-0.5 transition-transform active:scale-95 flex items-center justify-center bg-default-100"
+              className="focus:outline-none ring-2 ring-slate-200 hover:ring-indigo-500 rounded-full p-0.5 transition-transform active:scale-95 flex items-center justify-center bg-default-100 cursor-pointer"
             >
               {user?.image ? (
                 <Image
                   height={32}
                   width={32}
-                  src={user?.image} 
-                  alt={user?.name || "User Avatar"} 
+                  src={user.image} 
+                  alt={user.name || "User Avatar"} 
                   className="w-8 h-8 rounded-full object-cover"
                 />
               ) : (
@@ -131,14 +135,14 @@ export default function Navbar() {
 
                     <div className="flex flex-col p-1 gap-0.5">
                       <Link 
-                        href={`/dashboard/${user?.role || ""}`}
+                        href={getDashboardLink()}
                         className="block px-3 py-2 text-sm font-medium rounded-lg text-slate-700 hover:bg-slate-50 transition-colors"
                         onClick={() => setIsProfileOpen(false)}
                       >
                         My Dashboard
                       </Link>
                       <button 
-                        className="w-full text-left px-3 py-2 text-sm font-medium rounded-lg text-red-600 hover:bg-red-50 transition-colors"
+                        className="w-full text-left px-3 py-2 text-sm font-medium rounded-lg text-red-600 hover:bg-red-50 transition-colors cursor-pointer"
                         onClick={handleSignOut}
                       >
                         Log Out
@@ -170,7 +174,7 @@ export default function Navbar() {
           {/* Mobile Hamburger Menu Icon */}
           <button 
             onClick={() => setIsMobileMenuOpen(!isMobileMenuOpen)}
-            className="md:hidden text-default-600 focus:outline-none"
+            className="md:hidden text-default-600 focus:outline-none cursor-pointer"
           >
             <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
               {isMobileMenuOpen ? (

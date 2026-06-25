@@ -9,11 +9,12 @@ export default function DashboardNavbar() {
   const pathname = usePathname();
   const [isOpen, setIsOpen] = useState(false);
   const dropdownRef = useRef(null);
-   const router = useRouter();
+  const router = useRouter();
   const { data: session, isPending } = useSession();
-   const user = session?.user;
-   const role = user?.role;
-    const handleSignOut = async () => {
+  const user = session?.user;
+  const role = user?.role;
+
+  const handleSignOut = async () => {
     try {
       await authClient.signOut({
         fetchOptions: {
@@ -26,7 +27,6 @@ export default function DashboardNavbar() {
       console.error("Sign-Out Error:", error);
     }
   };
-
 
   useEffect(() => {
     function handleClickOutside(event) {
@@ -43,18 +43,16 @@ export default function DashboardNavbar() {
       
       <div className="flex items-center gap-2">
         <Link href="/" className="flex items-center gap-2">
-          
           <div className="text-xl font-bold bg-default-100 text-default-600 px-2 py-0.5 rounded-full border border-divider">
             Dashboard
           </div>
         </Link>
       </div>
 
-      <div>
-        <h1 className="text-xl font-bold text-slate-800">
-  Welcome back, <span className="text-indigo-600">{user?.name || "Reader"}</span>! 👋
-</h1>
-<p>Here is what's happening with your library today.</p>
+      <div className="hidden sm:block">
+        <h2 className="text-sm font-medium text-default-600">
+          Welcome back, <span className="text-indigo-600 font-bold">{user?.name || "Reader"}</span>! 👋
+        </h2>
       </div>
 
       <div className="flex items-center gap-2 relative" ref={dropdownRef}>
@@ -64,19 +62,19 @@ export default function DashboardNavbar() {
         >
           <Image
             height={32}
-            src={user?.image||"https://images.unsplash.com/photo-1534528741775-53994a69daeb?q=80&w=100"} 
+            src={user?.image || "https://images.unsplash.com/photo-1534528741775-53994a69daeb?q=80&w=100"} 
             width={32}
             className="w-8 h-8 rounded-full object-cover"
             alt={user?.name || "User Avatar"} 
             suppressHydrationWarning
-            />
+          />
         </button>
 
         {isOpen && (
           <div className="absolute right-0 top-11 w-56 bg-content1 border border-divider rounded-xl shadow-lg py-2 z-50 animate-in fade-in slide-in-from-top-2 duration-150">
             <div className="px-4 py-2 border-b border-divider/50 mb-1">
               <p className="font-semibold text-[10px] text-default-400 uppercase tracking-wider">Signed in as</p>
-              <p className="font-bold text-foreground truncate">{user?.name}</p>
+              <p className="font-bold text-foreground truncate">{user?.name || user?.email}</p>
             </div>
             
             <Link 
@@ -98,7 +96,7 @@ export default function DashboardNavbar() {
             <div className="border-t border-divider/50 mt-1 pt-1">
               <button 
                 onClick={handleSignOut}
-                className="flex w-full px-4 py-2 text-sm text-danger hover:bg-danger/10 transition-colors font-bold text-left"
+                className="flex w-full px-4 py-2 text-sm text-danger hover:bg-danger/10 transition-colors font-bold text-left cursor-pointer"
               >
                 Log Out
               </button>
