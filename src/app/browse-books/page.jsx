@@ -1,4 +1,4 @@
-const page = () => {
+const AllBooksPage = () => {
   return (
     <div>
       All Books
@@ -6,4 +6,4 @@ const page = () => {
   )
 }
 
-export default page
+export default AllBooksPage
