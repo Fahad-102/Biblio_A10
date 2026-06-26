@@ -47,7 +47,7 @@ export default async function DashboardSidebar() {
 
   return (
     <>
-      {/* ১. মোবাইল ভিউ: প্রিমিয়াম মেটেরিয়াল বটম নেভিগেশন বার (মোবাইলে কোনো ড্রয়ার বা কুৎসিত টপ বার থাকবে না) */}
+      
       <div className="fixed bottom-0 left-0 right-0 h-16 bg-white/80 backdrop-blur-md border-t border-slate-200/80 md:hidden flex items-center justify-around px-2 z-50 shadow-[0_-4px_20px_-4px_rgba(0,0,0,0.05)] rounded-t-2xl">
         {navItems.map((item) => (
           <Link
@@ -63,7 +63,6 @@ export default async function DashboardSidebar() {
         ))}
       </div>
 
-      {/* ২. ডেক্সটপ ভিউ: স্ট্যান্ডার্ড ফিক্সড সাইডবার */}
       <aside className="w-64 border-r border-divider h-screen sticky top-0 bg-background hidden md:flex flex-col p-6 z-30">
         <div className="mb-8 pl-4">
           <Link href="/">

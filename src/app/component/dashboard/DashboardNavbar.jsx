@@ -74,16 +74,15 @@ export default function DashboardNavbar() {
           className="relative w-8 h-8 rounded-full overflow-hidden border-2 border-indigo-600 focus:outline-none transition-transform active:scale-95 cursor-pointer shadow-sm"
         >
           <Image
+            width={32}
             height={32}
             src={user?.image || "https://images.unsplash.com/photo-1534528741775-53994a69daeb?q=80&w=100"} 
-            width={32}
-            className="w-8 h-8 rounded-full object-cover"
+            className="w-full h-full rounded-full object-cover"
             alt={user?.name || "User Avatar"} 
             suppressHydrationWarning
           />
         </button>
 
-        {/* ড্রপডাউন মেনু: রেসপন্সিভ পজিশনিং ফিক্স */}
         {isOpen && (
           <div className="absolute right-0 top-12 w-52 md:w-56 bg-white border border-divider rounded-xl shadow-xl py-1.5 z-50 animate-in fade-in slide-in-from-top-2 duration-150 origin-top-right">
             <div className="px-4 py-2 border-b border-divider/50 mb-1">

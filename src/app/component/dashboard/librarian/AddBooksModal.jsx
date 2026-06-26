@@ -1,18 +1,25 @@
 "use client";
 import React, { useState } from "react";
 import { Button, Input, Label, Modal, Surface, TextField } from "@heroui/react";
+import { imageUpload } from "@/app/lib/imgUpload";
+import { addBooks } from "@/app/lib/api/books";
 
 export default function AddBooksModal() {
   const [loading, setLoading] = useState(false);
 
-  const handleSubmit = async (e) => {
+  const onSubmit = async (e) => {
     e.preventDefault();
     setLoading(true);
 
-    const formData = new FormData(e.currentTarget);
+    const formData = new FormData(e.target);
     const data = Object.fromEntries(formData.entries())
-
-    console.log("Final Book Data :", data);
+    const image = await imageUpload(data.image)
+    const  books = {
+        ...data,
+        image:image.url
+    }    
+    const result = await addBooks(books)
+    console.log(result)
 
     try {
      
@@ -42,7 +49,7 @@ export default function AddBooksModal() {
             
             <Modal.Body className="p-6">
               <Surface variant="default">
-                <form id="add-book-form" onSubmit={handleSubmit} className="flex flex-col gap-4">
+                <form id="add-book-form" onSubmit={onSubmit} className="flex flex-col gap-4">
                   
                   <TextField className="w-full" name="title" type="text" variant="secondary" required>
                     <Label className="text-sm font-semibold text-slate-700 mb-1 block">Book Title</Label>
@@ -64,9 +71,9 @@ export default function AddBooksModal() {
                     <Input placeholder="e.g., 10" className="w-full" />
                   </TextField>
 
-                  <TextField className="w-full" name="coverImage" type="url" variant="secondary" required>
+                  <TextField className="w-full" type="url" variant="secondary" required>
                     <Label type="file" className="text-sm font-semibold text-slate-700 mb-1 block">Book Image</Label>
-                    <Input name="image" type="file" placeholder="book-cover.jpg" className="w-full" />
+                    <input name="image" type="file" placeholder="book-cover.jpg" className="w-full" />
                   </TextField>
 
             <Modal.Footer className="p-6 pt-2 border-t border-slate-100 flex justify-end gap-2">
