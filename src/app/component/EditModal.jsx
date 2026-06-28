@@ -17,15 +17,13 @@ export function EditModal({ book }) {
     const data = Object.fromEntries(formData.entries());
 
     try {
-      // 💥 ডিফল্ট হিসেবে আগের ইমেজটি ব্যাকআপ রাখা হলো যাতে ডাটা হারিয়ে না যায়
       let finalImageUrl = book?.image || ""; 
 
       const imageFile = formData.get("image");
       
-      // ইউজার যদি নতুন ইমেজ ফাইল সিলেক্ট করে, তবে এখানে আপনার ইমেজ আপলোড লজিক বসবে
       if (imageFile && imageFile.name) {
-        // const uploadRes = await imageUpload(imageFile); // Cloudinary / ImgBB কল
-        // finalImageUrl = uploadRes.url;
+        const uploadRes = await imageUpload(imageFile); 
+        finalImageUrl = uploadRes.url;
       }
       
       const updatedBookData = { 
@@ -33,7 +31,7 @@ export function EditModal({ book }) {
         description: data.description,
         price: Number(data.price),      
         quantity: Number(data.quantity), 
-        image: finalImageUrl // 💥 ডিফাইনড ভেরিয়েবল পাস করা হলো
+        image: finalImageUrl 
       };
 
       // API Call
