@@ -19,14 +19,20 @@ export const getLibrarianBooks = async (page) =>{
     return data;
 };
 
-export const getAllBooks = async(search)=>{
-    const res = await fetch(`${baseURI}/books?search=${search}`,{
+export const getAllBooks = async(search ,page = 1)=>{
+    const res = await fetch(`${baseURI}/books?search=${search}&page=${page}`,{
         method:"GET",
         headers:{
             "Content-Type":"application/json",
         },
-        body:JSON.stringify()
+       cache: "no-store"
     })
-    const data = res.json()
+    const data = await res.json()
     return data;
 }
+
+export const getBooksById = async (id) =>{
+    const res = await fetch(`${baseURI}/books/${id}`)
+    const data = await res.json()
+    return data;
+};

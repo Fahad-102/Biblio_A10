@@ -1,4 +1,6 @@
+import { Button } from "@heroui/react"
 import Image from "next/image"
+import Link from "next/link"
 
 const BookCard = ({ book }) => {
   return (
@@ -33,7 +35,7 @@ const BookCard = ({ book }) => {
           <div>
             <span className="text-xs text-gray-400 block">Price</span>
             <span className="text-xl font-extrabold text-indigo-600">
-              ৳{book.price}
+              ${book.price}
             </span>
           </div>
           <div className="text-right">
@@ -43,6 +45,9 @@ const BookCard = ({ book }) => {
           </div>
         </div>
       </div>
+      <Link href={`/browse-books/${book._id}`}>
+      <Button variant="outline" className="w-full py-2 px-4 rounded-2xl border-purple-600 text-purple-700 font-medium tracking-wide hover:bg-purple-700 hover:text-white shadow-sm transition-all duration-300 ease-in-out transform hover:-translate-y-0.5 active:translate-y-0">View Details</Button>
+      </Link>
     </div>
   )
 }
