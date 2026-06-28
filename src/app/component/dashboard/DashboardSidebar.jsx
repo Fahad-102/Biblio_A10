@@ -66,7 +66,7 @@ export default async function DashboardSidebar() {
       <aside className="w-64 border-r border-divider h-screen sticky top-0 bg-background hidden md:flex flex-col p-6 z-30">
         <div className="mb-8 pl-4">
           <Link href="/">
-            <span className="text-2xl font-black tracking-wider bg-gradient-to-r from-violet-600 to-indigo-600 bg-clip-text text-transparent">
+            <span className="text-2xl font-black tracking-wider bg-linear-to-r from-violet-600 to-indigo-600 bg-clip-text text-transparent">
               Biblio<span className="text-foreground"><span className="text-red-800">D</span>rop</span>
             </span>
           </Link>

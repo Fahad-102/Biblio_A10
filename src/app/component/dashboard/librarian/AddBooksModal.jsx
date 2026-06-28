@@ -2,7 +2,7 @@
 import React, { useState } from "react";
 import { Button, Input, Label, Modal, Surface, TextField } from "@heroui/react";
 import { imageUpload } from "@/app/lib/imgUpload";
-import { addBooks } from "@/app/lib/api/books";
+import { addBooks } from "@/app/lib/action/books";
 
 export default function AddBooksModal() {
   const [loading, setLoading] = useState(false);
