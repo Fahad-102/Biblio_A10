@@ -24,6 +24,7 @@ const AllBooksPage = async ({searchParams}) => {
           <SearchBooks />
         </div>
         </div>
+        { search && <h2 className="font-bold text-purple-700 mb-10 ">Found {books.length} Books with the search term <b className="text-red-700">{search}</b></h2>}
 
         
         <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6">
