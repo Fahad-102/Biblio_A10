@@ -10,15 +10,6 @@ const BookCard = ({ book }) => {
   const { data: session } = useSession();
   const user = session?.user;
 
- 
-  const userRole = user?.role;
-  const currentUserId = user?.id || user?._id;
-
-  
-  const bookOwnerId = book?.userId ? String(book.userId).trim() : null;
-  const loggedInUserId = currentUserId ? String(currentUserId).trim() : null;
-  const isOwner = bookOwnerId && loggedInUserId && bookOwnerId === loggedInUserId;
-
   const isOutOfStock = book.quantity <= 0;
 
   return (
@@ -74,13 +65,6 @@ const BookCard = ({ book }) => {
               View Details
             </Button>
           </Link>
-
-          
-          {userRole === "librarian" && !isOwner && (
-            <div className="mt-3 bg-purple-50/70 border border-purple-100 text-purple-700 p-2.5 rounded-xl text-[11px] leading-tight font-medium text-center">
-              🔒 <strong>Note:</strong> Non-owned book. Edit/Delete disabled for this Librarian.
-            </div>
-          )}
         </div>
       </div>
     </div>

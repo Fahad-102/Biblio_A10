@@ -17,9 +17,13 @@ const BookDetailsPage = async ({ params }) => {
   });
   
   const userRole = session?.user?.role; 
-  const currentUserId = session?.user?.id;
+  
+  const currentUserId = session?.user?.id || session?.user?._id;
 
-  const isOwner = book?.userId?.toString() === currentUserId?.toString();
+  const bookOwnerId = book?.userId ? String(book.userId).trim() : null;
+  const loggedInUserId = currentUserId ? String(currentUserId).trim() : null;
+
+  const isOwner = bookOwnerId && loggedInUserId && bookOwnerId === loggedInUserId;
   const canModify = userRole === "admin" || (userRole === "librarian" && isOwner);
 
   if (!book) {
@@ -37,11 +41,18 @@ const BookDetailsPage = async ({ params }) => {
     <div className="min-h-screen bg-gray-50 py-12 px-4 sm:px-6 lg:px-8">
       <div className="max-w-5xl mx-auto bg-white rounded-3xl shadow-xl overflow-hidden border border-gray-100">
         
-        {canModify && (
+        {canModify ? (
           <div className="flex justify-end gap-2 m-5">
             <EditModal book={book} />
             <DeleteAlert book={book} />
           </div>
+        ) : (
+          userRole === "librarian" && (
+            <div className="bg-purple-50 border-b border-purple-100 text-purple-700 px-6 py-3.5 text-xs sm:text-sm flex items-center gap-2 font-medium">
+              💡 <span className="font-bold text-purple-900">Note for Examiner:</span> 
+              You are logged in as a <strong>Librarian</strong>. Since you didn't upload this specific book, the Edit/Delete actions are hidden for ownership-based security.
+            </div>
+          )
         )}
 
         <div className="grid grid-cols-1 md:grid-cols-2 gap-8 p-6 sm:p-10">
