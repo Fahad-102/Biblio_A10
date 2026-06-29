@@ -49,16 +49,6 @@ const BookCard = ({ book }) => {
               View Details
             </Button>
           </Link>
-
-          {/* Librarian Role Check */}
-          {user?.role === "librarian" && (
-            <div className="flex gap-2">
-              <Link href={`/dashboard/librarian/edit/${book._id}`} className="flex-1">
-                <Button color="warning" className="w-full">Edit</Button>
-              </Link>
-              <Button color="danger" className="w-full">Delete</Button>
-            </div>
-          )}
         </div>
       </div>
     </div>
