@@ -69,19 +69,20 @@ export default function FeaturedBooks() {
                 key={book.id} 
                 className="w-full h-105 rounded-2xl bg-content1 border border-divider hover:border-primary/30 transition-all duration-300 group overflow-hidden"
               >
-                {/* Book Cover Container */}
-                <div className="p-0 overflow-hidden relative h-62.5 w-full">
-                  <span className="absolute top-3 left-3 z-20 text-[10px] font-bold uppercase tracking-wider bg-black/60 backdrop-blur-md text-white px-2.5 py-1 rounded-md border border-white/10">
-                    {book.category}
-                  </span>
-                  <Image
-                    alt={book.title}
-                    className="w-full h-62.5 object-cover rounded-t-2xl transition-transform duration-500 group-hover:scale-105"
-                    src={book.image}
-                    height={250}
-                    width={400}
-                  />
-                </div>
+                {/* Book Cover Container  */}
+<div className="p-0 overflow-hidden relative w-full aspect-16/10 bg-default-50">
+  <span className="absolute top-3 left-3 z-20 text-[10px] font-bold uppercase tracking-wider bg-black/60 backdrop-blur-md text-white px-2.5 py-1 rounded-md border border-white/10">
+    {book.category}
+  </span>
+  <Image
+    alt={book.title}
+    fill 
+    sizes="(max-width: 768px) 100vw, 33vw"
+    className="object-cover rounded-t-2xl transition-transform duration-500 group-hover:scale-105"
+    src={book.image}
+    priority={book.id <= 3}
+  />
+</div>
                 
                 {/* Book Details Container */}
                 <div className="px-5 pt-4 pb-2 flex flex-col items-start justify-start gap-1 w-full">
@@ -109,13 +110,13 @@ export default function FeaturedBooks() {
         }
         
       </div>
-      <div  className="mt-5 flex justify-center item-center">
+      <div className="mt-5 flex justify-center item-center">
         <Link href="/browse-books">
-            <Button variant="outline" className="text-purple-900 hover:bg-purple-800 hover:text-white">
-                Show more
-            </Button>
+          <Button variant="outline" className="text-purple-900 hover:bg-purple-800 hover:text-white">
+            Show more
+          </Button>
         </Link>
-        </div>
+      </div>
     </section>
   );
 }

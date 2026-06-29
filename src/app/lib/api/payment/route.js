@@ -1,7 +1,7 @@
 import { NextResponse } from 'next/server';
 import { headers } from 'next/headers';
 import { stripe } from '@/app/lib/stripe'; 
-import { auth } from '@/app/lib/auth';
+import { auth } from '../../auth';
 
 export async function POST(req) { 
   try {

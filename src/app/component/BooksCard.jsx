@@ -9,13 +9,14 @@ const BookCard = ({ book }) => {
       <div className="relative w-full aspect-4/5 bg-gray-50 overflow-hidden">
         <Image
           src={book.image} 
-          alt={book.title}
+          alt={book.title || "Book Cover"}
           fill
           sizes="(max-width: 640px) 100vw, (max-width: 1024px) 50vw, 25vw"
           className="object-cover hover:scale-105 transition-transform duration-300"
           suppressHydrationWarning
           priority={true} 
-        unoptimized={true}
+          unoptimized={true}
+          style={{ height: "auto" }} 
         />
       </div>
 
@@ -45,11 +46,17 @@ const BookCard = ({ book }) => {
           </div>
         </div>
       </div>
+
       <Link href={`/browse-books/${book._id}`}>
-      <Button variant="outline" className="w-full py-2 px-4 rounded-2xl border-purple-600 text-purple-700 font-medium tracking-wide hover:bg-purple-700 hover:text-white shadow-sm transition-all duration-300 ease-in-out transform hover:-translate-y-0.5 active:translate-y-0">View Details</Button>
+        <Button 
+          variant="outline" 
+          className="w-full py-2 px-4 rounded-2xl border-purple-600 text-purple-700 font-medium tracking-wide hover:bg-purple-700 hover:text-white shadow-sm transition-all duration-300 ease-in-out transform hover:-translate-y-0.5 active:translate-y-0"
+        >
+          View Details
+        </Button>
       </Link>
     </div>
   )
 }
 
-export default BookCard
+export default BookCard;
