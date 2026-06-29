@@ -81,6 +81,7 @@ export default function FeaturedBooks() {
     className="object-cover rounded-t-2xl transition-transform duration-500 group-hover:scale-105"
     src={book.image}
     priority={book.id <= 3}
+    unoptimized
   />
 </div>
                 

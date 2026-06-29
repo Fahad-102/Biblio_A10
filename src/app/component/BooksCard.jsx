@@ -16,7 +16,6 @@ const BookCard = ({ book }) => {
           suppressHydrationWarning
           priority={true} 
           unoptimized={true}
-          style={{ height: "auto" }} 
         />
       </div>
 

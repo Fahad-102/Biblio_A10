@@ -40,7 +40,7 @@ export function DeleteAlert({ book, onDeleteSuccess }) {
         isLoading: false,
         autoClose: 3000
       });
-    } {
+    } finally {
       setLoading(false);
     }
   };
@@ -58,18 +58,21 @@ export function DeleteAlert({ book, onDeleteSuccess }) {
       <AlertDialog isOpen={isOpen} onOpenChange={setIsOpen}>
         <AlertDialog.Backdrop>
           <AlertDialog.Container placement="center">
-            <AlertDialog.Dialog className="w-full max-w-full sm:max-w-md bg-white rounded-t-3xl sm:rounded-3xl overflow-hidden shadow-2xl border border-gray-100 p-5 sm:p-6 flex flex-col gap-4">
+            <AlertDialog.Dialog className="w-full max-w-full sm:max-w-md bg-white rounded-t-3xl sm:rounded-3xl overflow-hidden shadow-2xl border border-gray-100 p-5 sm:p-6 flex flex-col gap-4 relative">
               
               <button 
                 type="button"
                 onClick={() => setIsOpen(false)} 
-                className="top-4 right-4 absolute cursor-pointer text-gray-400 hover:text-gray-600 text-base p-1 font-bold"
+                className="top-4 right-4 absolute cursor-pointer text-gray-400 hover:text-gray-600 text-base p-1 font-bold z-30"
               >
                 ✕
               </button>
               
               <AlertDialog.Header className="flex items-center gap-3 pb-2 border-b border-gray-50">
-                <AlertDialog.Icon status="danger" className="p-2 bg-red-50 text-red-500 rounded-xl size-9 flex items-center justify-center" />
+              
+                <div className="p-2 bg-red-50 text-red-500 rounded-xl w-9 h-9 flex items-center justify-center text-lg shrink-0">
+                  <BiTrash />
+                </div>
                 <AlertDialog.Heading className="text-base sm:text-lg font-bold text-gray-800">
                   Delete book permanently?
                 </AlertDialog.Heading>
@@ -83,7 +86,11 @@ export function DeleteAlert({ book, onDeleteSuccess }) {
               </AlertDialog.Body>
               
               <AlertDialog.Footer className="flex justify-end gap-2 sm:gap-3 pt-2 border-t border-gray-50">
-                <Button onPress={() => setIsOpen(false)} variant="flat" className="bg-gray-100 text-gray-600 rounded-xl font-medium cursor-pointer">
+                <Button 
+                  onPress={() => setIsOpen(false)} 
+                  variant="flat" 
+                  className="bg-gray-100 text-gray-600 rounded-xl font-medium cursor-pointer"
+                >
                   Cancel
                 </Button>
                 <Button 
