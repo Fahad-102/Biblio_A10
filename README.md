@@ -6,8 +6,12 @@
 
 ## 🚀 Live Links & Repositories
 * **Live Deployment Site:
+https://biblio-drop-a10.vercel.app
 * **Client-Side (Frontend) Repository:
+https://github.com/Fahad-102/Biblio_A10.git
 * **Server-Side (Backend API) Repository:
+https://github.com/Fahad-102/Biblio-a10-server.git
+
 
 ---
 
