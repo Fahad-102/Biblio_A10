@@ -1,12 +1,13 @@
 import React from "react";
 import AddBooksModal from "@/app/component/dashboard/librarian/AddBooksModal";
 import { getLibrarianBooks } from "@/app/lib/api/books";
-import BookTable from "@/app/component/dashboard/librarian/BookTable"; // পাথটি ঠিকভাবে মিলিয়ে নিবেন
+import BookTable from "./BookTable";
+
 
 const LibrarianBookPage = async ({ searchParams }) => {
   const params = await searchParams;
   
-  // পেজ নম্বর ডিফাইন না থাকলে ডিফল্ট ১ পাস হবে
+ 
   const currentPage = params?.page ? Number(params.page) : 1;
   const books = await getLibrarianBooks(currentPage);
 
