@@ -2,7 +2,7 @@ import { jwtClient } from "better-auth/client/plugins";
 import { createAuthClient } from "better-auth/react";
 
 export const authClient = createAuthClient({
-    baseURL: process.env.NEXT_PUBLIC_BETTER_AUTH_URL || "https://biblio-a10.vercel.app",
+    baseURL: process.env.NEXT_PUBLIC_BETTER_AUTH_URL || "https://biblio-drop-a10.vercel.app",
     plugins: [jwtClient()]
 });
 
