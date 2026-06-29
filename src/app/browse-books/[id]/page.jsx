@@ -48,10 +48,14 @@ const BookDetailsPage = async ({ params }) => {
           </div>
         ) : (
           userRole === "librarian" && (
-            <div className="bg-purple-50 border-b border-purple-100 text-purple-700 px-6 py-3.5 text-xs sm:text-sm flex items-center gap-2 font-medium">
-              💡 <span className="font-bold text-purple-900">Note for Examiner:</span> 
-              You are logged in as a <strong>Librarian</strong>. Since you didn't upload this specific book, the Edit/Delete actions are hidden for ownership-based security.
-            </div>
+           <div className="bg-purple-50 border-b border-purple-100 text-purple-700 px-6 py-3.5 text-xs sm:text-sm flex flex-col sm:flex-row items-start sm:items-center gap-2 font-medium w-full">
+  <div className="flex items-center gap-2 shrink-0">
+    💡 <span className="font-bold text-purple-900 whitespace-nowrap">Note for Examiner:</span> 
+  </div>
+  <p className="text-gray-700 leading-relaxed">
+    You are logged in as a <strong>Librarian</strong>. Since you didn't upload this specific book, the Edit/Delete actions are hidden for ownership-based security.
+  </p>
+</div>
           )
         )}
 
