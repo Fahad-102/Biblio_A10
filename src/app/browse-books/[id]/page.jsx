@@ -17,8 +17,10 @@ const BookDetailsPage = async ({ params }) => {
   });
   
   const userRole = session?.user?.role; 
-  const currentUserId = session?.user?.id || session?.user?.sub; 
-  const canModify = userRole === "admin" || (userRole === "librarian" && book?.userId === currentUserId);
+  const currentUserId = session?.user?.id;
+
+  const isOwner = book?.userId?.toString() === currentUserId?.toString();
+  const canModify = userRole === "admin" || (userRole === "librarian" && isOwner);
 
   if (!book) {
     return (
@@ -43,7 +45,6 @@ const BookDetailsPage = async ({ params }) => {
         )}
 
         <div className="grid grid-cols-1 md:grid-cols-2 gap-8 p-6 sm:p-10">
-          
           <div className="flex flex-col justify-center items-center bg-gray-50 rounded-2xl p-6 relative aspect-4/5 w-full max-w-md mx-auto shadow-inner group">
             <Image
               src={book.image}
@@ -53,75 +54,41 @@ const BookDetailsPage = async ({ params }) => {
               unoptimized
               className="object-contain p-4 group-hover:scale-102 transition-transform duration-300"
               sizes="(max-width: 768px) 100vw, 50vw"
-              suppressHydrationWarning
             />
           </div>
 
           <div className="flex flex-col justify-between space-y-6">
             <div>
               <div className="flex items-center justify-between mb-4">
-                <Link href="/browse-books" className="text-sm font-medium text-purple-600 hover:text-purple-800 transition-colors flex items-center gap-1">
+                <Link href="/browse-books" className="text-sm font-medium text-purple-600 hover:text-purple-800 transition-colors">
                   ← Back to Browse
                 </Link>
-                <span className="text-xs bg-purple-50 text-purple-600 px-3 py-1 rounded-full font-semibold uppercase tracking-wider">
+                <span className="text-xs bg-purple-50 text-purple-600 px-3 py-1 rounded-full font-semibold uppercase">
                   Premium Collection
                 </span>
               </div>
 
-              <h1 className="text-3xl sm:text-4xl font-extrabold text-gray-900 leading-tight mb-2">
-                {book.title}
-              </h1>
-              <p className="text-xs text-gray-400 mb-6 font-mono">
-                Publisher/Librarian ID: {book.userId}
-              </p>
-
-              <div className="border-t border-gray-100 my-4"></div>
-
-              <h3 className="text-lg font-bold text-gray-800 mb-2">Description:</h3>
-              <p className="text-gray-600 leading-relaxed text-sm sm:text-base whitespace-pre-line">
-                {book.description}
-              </p>
+              <h1 className="text-3xl sm:text-4xl font-extrabold text-gray-900 mb-2">{book.title}</h1>
+              <p className="text-gray-600 leading-relaxed text-sm">{book.description}</p>
             </div>
 
             <div className="space-y-4 pt-6 border-t border-gray-100">
               <div className="flex items-center justify-between">
-                <div>
-                  <span className="text-xs text-gray-400 block font-medium uppercase tracking-wider">Price</span>
-                  <div className="flex items-baseline gap-1">
-                    <span className="text-3xl font-black text-purple-600">${book.price}</span>
-                    <span className="text-sm text-gray-400 line-through">${Number(book.price) + 10}</span>
-                  </div>
-                </div>
-
-                <div className="text-right">
-                  <span className="text-xs text-gray-400 block font-medium uppercase tracking-wider mb-1">Availability</span>
-                  <span className={`px-4 py-1.5 rounded-full text-xs font-bold inline-block ${
-                    book.quantity > 0 
-                      ? "bg-emerald-50 text-emerald-700 border border-emerald-200" 
-                      : "bg-rose-50 text-rose-700 border border-rose-200"
-                  }`}>
-                    {book.quantity > 0 ? `In Stock: ${book.quantity} Pcs` : "Out of Stock"}
-                  </span>
-                </div>
+                <span className="text-3xl font-black text-purple-600">${book.price}</span>
+                <span className={`px-4 py-1.5 rounded-full text-xs font-bold ${book.quantity > 0 ? "bg-emerald-50 text-emerald-700" : "bg-rose-50 text-rose-700"}`}>
+                  {book.quantity > 0 ? `In Stock: ${book.quantity}` : "Out of Stock"}
+                </span>
               </div>
 
               <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 pt-2">
-                
                 <BuyNowButton book={book} />
-
-                <Button 
-                  variant="bordered"
-                  className="w-full border-purple-200 text-purple-600 font-bold py-6 rounded-xl hover:bg-purple-50 transition-all"
-                >
+                <Button variant="bordered" className="w-full font-bold py-6 rounded-xl">
                   Add to Borrow List
                 </Button>
-
               </div>
             </div>
-
           </div>
         </div>
-
       </div>
     </div>
   );

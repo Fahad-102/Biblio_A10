@@ -12,16 +12,12 @@ const client = new MongoClient(uri);
 const db = client.db(dbName);
 
 export const auth = betterAuth({
-  baseURL: process.env.BETTER_AUTH_URL || "https://biblio-a10.vercel.app",
-  secret: process.env.BETTER_AUTH_SECRET || "fallback_secret_for_build",
+  baseURL: process.env.BETTER_AUTH_URL || "https://biblio-drop-a10.vercel.app",
+  secret: process.env.BETTER_AUTH_SECRET,
   
-  database: mongodbAdapter(db, {
-    client: client
-  }),
+  database: mongodbAdapter(db, { client }),
   
-  emailAndPassword: { 
-    enabled: true, 
-  }, 
+  emailAndPassword: { enabled: true }, 
   
   socialProviders: { 
     google: { 
@@ -32,12 +28,22 @@ export const auth = betterAuth({
   
   user: {
     additionalFields: {
-      role: { defaultValue: "user" },
-      plan: { defaultValue: "free" },
+      role: { type: "string", defaultValue: "user" },
+      plan: { type: "string", defaultValue: "free" },
     },
   },
   
   session: {
+    getUserSession: async ({ session, user }) => {
+      return {
+        session,
+        user: {
+          ...user,
+          role: user.role, 
+          plan: user.plan,
+        },
+      };
+    },
     cookieCache: {
       enable: true,
       strategy: 'jwt',

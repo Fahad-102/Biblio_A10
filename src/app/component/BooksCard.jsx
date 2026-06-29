@@ -1,20 +1,24 @@
-import { Button } from "@heroui/react"
-import Image from "next/image"
-import Link from "next/link"
+"use client";
+import React from "react";
+import { Button } from "@heroui/react";
+import Image from "next/image";
+import Link from "next/link";
+import { useSession } from "../lib/auth-client";
 
 const BookCard = ({ book }) => {
+  const { data: session } = useSession();
+  const user = session?.user;
+
   return (
     <div className="bg-white rounded-2xl shadow-md hover:shadow-xl transition-shadow duration-300 overflow-hidden border border-gray-100 flex flex-col h-full">
       {/* Image Container */}
       <div className="relative w-full aspect-4/5 bg-gray-50 overflow-hidden">
         <Image
-          src={book.image} 
+          src={book.image}
           alt={book.title || "Book Cover"}
           fill
           sizes="(max-width: 640px) 100vw, (max-width: 1024px) 50vw, 25vw"
           className="object-cover hover:scale-105 transition-transform duration-300"
-          suppressHydrationWarning
-          priority={true} 
           unoptimized={true}
         />
       </div>
@@ -30,32 +34,35 @@ const BookCard = ({ book }) => {
           </p>
         </div>
 
-        {/* Price and Stock / Action */}
-        <div className="flex items-center justify-between pt-2 border-t border-gray-50">
-          <div>
-            <span className="text-xs text-gray-400 block">Price</span>
-            <span className="text-xl font-extrabold text-indigo-600">
-              ${book.price}
-            </span>
-          </div>
-          <div className="text-right">
-            <span className="text-xs bg-emerald-50 text-emerald-600 px-2.5 py-1 rounded-full font-medium inline-block">
-              Qty: {book.quantity}
-            </span>
-          </div>
+        {/* Price and Stock */}
+        <div className="flex items-center justify-between pt-2 border-t border-gray-50 mb-4">
+          <span className="text-xl font-extrabold text-indigo-600">${book.price}</span>
+          <span className="text-xs bg-emerald-50 text-emerald-600 px-2.5 py-1 rounded-full font-medium">
+            Qty: {book.quantity}
+          </span>
+        </div>
+
+        {/* Action Buttons */}
+        <div className="flex flex-col gap-2">
+          <Link href={`/browse-books/${book._id}`}>
+            <Button className="w-full bg-purple-600 text-white hover:bg-purple-700">
+              View Details
+            </Button>
+          </Link>
+
+          {/* Librarian Role Check */}
+          {user?.role === "librarian" && (
+            <div className="flex gap-2">
+              <Link href={`/dashboard/librarian/edit/${book._id}`} className="flex-1">
+                <Button color="warning" className="w-full">Edit</Button>
+              </Link>
+              <Button color="danger" className="w-full">Delete</Button>
+            </div>
+          )}
         </div>
       </div>
-
-      <Link href={`/browse-books/${book._id}`}>
-        <Button 
-          variant="outline" 
-          className="w-full py-2 px-4 rounded-2xl border-purple-600 text-purple-700 font-medium tracking-wide hover:bg-purple-700 hover:text-white shadow-sm transition-all duration-300 ease-in-out transform hover:-translate-y-0.5 active:translate-y-0"
-        >
-          View Details
-        </Button>
-      </Link>
     </div>
-  )
-}
+  );
+};
 
 export default BookCard;
