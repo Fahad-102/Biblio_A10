@@ -18,7 +18,7 @@ export default function Banner() {
       title: "Democratizing Access to Knowledge",
       description: "Skip the physical trip. Connect with local libraries and independent book owners to get your next read safely delivered right to your doorstep.",
       cta: "Browse Books",
-      link: "/browse"
+      link: "/browse-books"
     },
     {
       id: 2,
@@ -27,7 +27,7 @@ export default function Banner() {
       title: "Become a Book Provider Today",
       description: "List your personal book collection, manage delivery requests through a secured system, and earn smoothly while helping students and readers alike.",
       cta: "Join as Librarian",
-      link: "/register"
+      link: "/signin"
     },
     {
       id: 3,
@@ -36,7 +36,7 @@ export default function Banner() {
       title: "Verified Reviews & Smart Tracking",
       description: "Enjoy verified reviews from authentic readers, transparent Stripe payment integration, and real-time delivery status updates from Pending to Delivered.",
       cta: "Explore Collections",
-      link: "/browse"
+      link: "/browse-books"
     }
   ];
 
