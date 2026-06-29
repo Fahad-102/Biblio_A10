@@ -16,8 +16,8 @@ const BookDetailsPage = async ({ params }) => {
   });
   
   const userRole = session?.user?.role; 
-
-  const canModify = userRole === "admin" || userRole === "librarian";
+  const currentUserId = session?.user?.id || session?.user?.sub; 
+  const canModify = userRole === "admin" || (userRole === "librarian" && book?.userId === currentUserId);
 
   if (!book) {
     return (
@@ -43,7 +43,7 @@ const BookDetailsPage = async ({ params }) => {
 
         <div className="grid grid-cols-1 md:grid-cols-2 gap-8 p-6 sm:p-10">
           
-          <div className="flex flex-col justify-center items-center bg-gray-50 rounded-2xl p-6 relative aspect-4/5 w-full max-w-100 mx-auto shadow-inner group">
+          <div className="flex flex-col justify-center items-center bg-gray-50 rounded-2xl p-6 relative aspect-4/5 w-full max-w-md mx-auto shadow-inner group">
             <Image
               src={book.image}
               alt={book.title}
@@ -106,7 +106,7 @@ const BookDetailsPage = async ({ params }) => {
 
               <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 pt-2">
                 
-                <form action="/lib/api/payment" method="POST" className="w-full">
+                <form action="/api/payment" method="POST" className="w-full">
                   <input type="hidden" name="price" value={book.price} />
                   <input type="hidden" name="title" value={book.title} />
                   <input type="hidden" name="bookId" value={book._id} />
