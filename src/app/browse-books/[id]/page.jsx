@@ -1,13 +1,23 @@
+import { DeleteAlert } from "@/app/component/DeleteAlert";
 import { EditModal } from "@/app/component/EditModal";
 import { getBooksById } from "@/app/lib/api/books";
 import { Button } from "@heroui/react";
 import Image from "next/image";
 import Link from "next/link";
-import { FaEdit } from "react-icons/fa";
+import { headers } from "next/headers"; 
+import { auth } from "@/app/lib/auth";
 
 const BookDetailsPage = async ({ params }) => {
   const { id } = await params;
   const book = await getBooksById(id);
+
+  const session = await auth.api.getSession({
+    headers: await headers(),
+  });
+  
+  const userRole = session?.user?.role; 
+
+  const canModify = userRole === "admin" || userRole === "librarian";
 
   if (!book) {
     return (
@@ -24,7 +34,13 @@ const BookDetailsPage = async ({ params }) => {
     <div className="min-h-screen bg-gray-50 py-12 px-4 sm:px-6 lg:px-8">
       <div className="max-w-5xl mx-auto bg-white rounded-3xl shadow-xl overflow-hidden border border-gray-100">
         
-            <EditModal book={book}/>
+        {canModify && (
+          <div className="flex justify-end gap-2 m-5">
+            <EditModal book={book} />
+            <DeleteAlert book={book} />
+          </div>
+        )}
+
         <div className="grid grid-cols-1 md:grid-cols-2 gap-8 p-6 sm:p-10">
           
           <div className="flex flex-col justify-center items-center bg-gray-50 rounded-2xl p-6 relative aspect-4/5 w-full max-w-100 mx-auto shadow-inner group">

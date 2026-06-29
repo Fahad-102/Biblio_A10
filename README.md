@@ -1,36 +1,79 @@
-This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://github.com/vercel/next.js/tree/canary/packages/create-next-app).
+# 📚 BiblioDrop – Online Book Delivery Management System
 
-## Getting Started
+**BiblioDrop** is a comprehensive, full-stack digital marketplace that democratizes access to books by connecting avid readers and students with local libraries and independent book owners. Designed to eliminate the barrier of physical library visits, BiblioDrop enables seamless book discovery, secure doorstep delivery requests, and real-time reading management with robust role-based workflows.
 
-First, run the development server:
+---
 
-```bash
-npm run dev
-# or
-yarn dev
-# or
-pnpm dev
-# or
-bun dev
-```
+## 🚀 Live Links & Repositories
+* **Live Deployment Site:
+* **Client-Side (Frontend) Repository:
+* **Server-Side (Backend API) Repository:
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+---
 
-You can start editing the page by modifying `app/page.js`. The page auto-updates as you edit the file.
+## 👥 Multi-Role Ecosystem Workflows
 
-This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
+### 1. 📖 Users (Readers)
+* **Explore & Discover:** Publicly search, filter, and browse diverse book collections.
+* **Premium Delivery Integration:** Request doorstep delivery securely using **Stripe Payment Gateway** for handling delivery fees.
+* **Personalized Dashboard:** Track live stats via data visualization charts, view delivery status logs, access a gallery of delivered books (My Reading List), and manage reviews.
 
-## Learn More
+### 💼 2. Librarians (Providers / Book Owners)
+* **Inventory Upload:** List books with comprehensive metadata and high-resolution cover images powered by the **imgBB API**.
+* **Publishing Control:** All newly submitted listings default to `Pending Approval`. Once accepted by the admin, librarians can dynamically toggle their books between `Published` and `Unpublished` states.
+* **Order Fulfillment:** Live tracking table to update order processing states (`Pending` ➔ `Dispatched` ➔ `Delivered`).
 
-To learn more about Next.js, take a look at the following resources:
+### 👑 3. Admin (Platform Overseer)
+* **Book Approval Queue:** Dedicated portal to critically evaluate, authorize (`Approve & Publish`), or dismiss pending inventory requests.
+* **Platform Control & Governance:** Ultimate power to forcibly unpublish or completely erase any malicious listing platform-wide.
+* **User & Financial Auditing:** Update user roles (e.g., Promote to Admin/Librarian), handle structural account deletions, and access cross-platform ledger logs tracking every Stripe transaction ID, amount, and timestamp.
 
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
+---
 
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js) - your feedback and contributions are welcome!
+## ✨ Premium Challenges & Technical Implementations
 
-## Deploy on Vercel
+* **🔒 Session-Drop Resilient (Better-Auth):** Configured specialized routing middleware preventing session expiration or fallback login redirections during hard page refreshes on private routes (`/dashboard/*`).
+* **⭐ Verified Review System:** Advanced database-level checking ensures only users with verified `Delivered` status logs can rate and comment on a specific book's details page.
+* **💳 Stripe Payment Pipeline:** Automated end-to-end payment webhook triggering immediate system state shifts from unpaid items to a validated `Pending Delivery` status.
+* **🔍 Optimized Server-Side Pagination:** Seamless handling of high-density data on the Browse page featuring dynamic server-side pagination (6–12 items per page), multi-criteria range filtering (Category, Delivery Fee Range, Availability), and optimized real-time search strings.
 
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
+---
 
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
+## 🛠️ Modern Tech Stack
+
+| Layer | Technologies Used |
+| :--- | :--- |
+| **Frontend UI/UX** | Next.js 14 (App Router), Tailwind CSS, HeroUI / DaisyUI, Framer Motion (Animations) |
+| **State & Auth** | Better-Auth (Role-Based Access Control), React Hooks |
+| **Data Visualization** | Recharts / Chart.js |
+| **Backend & API** | Node.js, Express.js, REST API Architecture, JWT Cookie Verification |
+| **Database & Cloud** | MongoDB Atlas, Mongoose ODM, imgBB API (Image Hosting) |
+| **Payment Gateway** | Stripe SDK Integration |
+| **Alerts & Feedback** | React Hot Toast / React Toastify |
+
+---
+
+## 📦 Installed Dependencies & Packages
+
+### Client-Side Packages:
+* `next` (v14+)
+* `tailwind-merge` & `clsx`
+* `framer-motion` (Fluid UI animations)
+* `recharts` / `chart.js` (Statistical dynamic charts)
+* `lucide-react` (Modern icons including rebranded **X** logo)
+* `react-hot-toast` (Asynchronous validation responses)
+
+### Server-Side Packages:
+* `express` (Core routing)
+* `mongoose` (Object Data Modeling)
+* `cors` (Secure Cross-Origin Resource Sharing rules)
+* `dotenv` (Environment management)
+* `stripe` (Financial processing)
+* `jsonwebtoken` / `better-auth` node server integrations
+
+---
+
+## ⚙️ Environment Variables Setup
+
+Ensure the following configuration keys are added in your root directories before executing local runtime environments:
+

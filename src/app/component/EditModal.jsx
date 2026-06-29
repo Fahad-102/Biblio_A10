@@ -49,7 +49,7 @@ export function EditModal({ book }) {
 
   return (
     <>
-      <div className="flex justify-end p-2 sm:p-4">
+      
         <Button 
           onPress={() => setIsOpen(true)} 
           className="rounded-xl flex items-center gap-2 border-purple-600 text-purple-700 hover:bg-purple-50 text-sm sm:text-base px-3 py-1.5 sm:px-4 sm:py-2" 
@@ -57,7 +57,6 @@ export function EditModal({ book }) {
         >
           <FaEdit /> Edit Book
         </Button>
-      </div>
 
       <Modal isOpen={isOpen} onOpenChange={setIsOpen}>
         <Modal.Backdrop>

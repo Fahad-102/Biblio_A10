@@ -40,17 +40,51 @@ export const getBooksById = async (id) => {
 
 
 export const editBooksId = async (id, updatedData) => {
-    const token = await getTokenServer(); 
-    
-    const res = await fetch(`${baseURI}/books/${id}`, {
-        method: "PATCH",
-        headers: {
-            "Content-Type": "application/json",
-            "authorization": `Bearer ${token}` 
-        },
-        body: JSON.stringify(updatedData) 
-    });
-    
-    const data = await res.json(); 
-    return data;
+    try {
+        const token = await getTokenServer(); 
+        
+        const res = await fetch(`${baseURI}/books/${id}`, {
+            method: "PATCH",
+            headers: {
+                "Content-Type": "application/json",
+                "authorization": `Bearer ${token}` 
+            },
+            body: JSON.stringify(updatedData) 
+        });
+        
+        if (!res.ok) {
+            throw new Error(`Failed to update book. Status: ${res.status}`);
+        }
+        
+        const data = await res.json(); 
+        return data;
+    } catch (error) {
+        console.error("API Error in editBooksId:", error);
+        throw error;
+    }
+};
+
+
+export const deleteBook = async (id) => {
+    try {
+        const token = await getTokenServer(); 
+        
+        const res = await fetch(`${baseURI}/books/${id}`, {
+            method: "DELETE",
+            headers: {
+                "Content-Type": "application/json",
+                "authorization": `Bearer ${token}` 
+            }
+        });
+
+        if (!res.ok) {
+            throw new Error(`Failed to delete book. Status: ${res.status}`);
+        }
+
+        const data = await res.json();
+        return data;
+    } catch (error) {
+        console.error("API Error in deleteBook:", error);
+        throw error;
+    }
 };

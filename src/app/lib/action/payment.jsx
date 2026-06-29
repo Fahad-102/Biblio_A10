@@ -1,6 +1,6 @@
 "use server"
 
-const baseURI = process.env.NEXT_PUBLIC_SERVER_URL || 'http://localhost:5000';
+const baseURI = process.env.NEXT_PUBLIC_SERVER_URL;
 
 export const subscription = async (data) => {
   try {
