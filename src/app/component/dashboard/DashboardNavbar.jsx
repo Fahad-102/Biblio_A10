@@ -30,7 +30,7 @@ export default function DashboardNavbar() {
   };
 
   useEffect(() => {
-    setMounted(true); 
+    setMounted(true);  
 
     function handleClickOutside(event) {
       if (dropdownRef.current && !dropdownRef.current.contains(event.target)) {
