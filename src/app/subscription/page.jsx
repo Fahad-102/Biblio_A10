@@ -1,13 +1,16 @@
 "use client";
 import React, { useState } from "react";
+import { toast } from "react-toastify"; 
 
 export default function SubscriptionPage() {
   const [userRole, setUserRole] = useState("user");
   const [loadingPlanId, setLoadingPlanId] = useState(null);
 
-  // চেকাউট হ্যান্ডলার ফাংশন
   const handleCheckout = async (planId) => {
     setLoadingPlanId(planId);
+    
+    const toastId = toast.loading("Redirecting to secure payment gateway... 💳");
+    
     try {
       const formData = new FormData();
       formData.append("planId", planId);
@@ -20,14 +23,32 @@ export default function SubscriptionPage() {
       const data = await response.json();
 
       if (response.ok && data.url) {
-        // স্ট্রাইপ পেমেন্ট পেজে রিডাইরেক্ট
-        window.location.href = data.url; 
+        toast.update(toastId, {
+          render: "Connection secured! Opening checkout... 🚀",
+          type: "success",
+          isLoading: false,
+          autoClose: 1500
+        });
+
+        setTimeout(() => {
+          window.location.href = data.url; 
+        }, 1000);
       } else {
-        alert(data.error || "কোথাও একটা সমস্যা হয়েছে। আবার চেষ্টা করুন।");
+        toast.update(toastId, {
+          render: data.error || "Unable to process payment request. Try again.",
+          type: "error",
+          isLoading: false,
+          autoClose: 3000
+        });
       }
     } catch (error) {
       console.error("Checkout error:", error);
-      alert("নেটওয়ার্ক সমস্যা! আবার চেষ্টা করুন।");
+      toast.update(toastId, {
+        render: "Network error! Please check your connection and retry.",
+        type: "error",
+        isLoading: false,
+        autoClose: 3000
+      });
     } finally {
       setLoadingPlanId(null);
     }

@@ -18,7 +18,7 @@ export async function POST(req) {
     }
 
     const headersList = await headers();
-    const origin = headersList.get('origin') ;
+    const origin = headersList.get('origin');
 
     let user = null;
     try {
@@ -59,13 +59,12 @@ export async function POST(req) {
         bookId
       },
       mode: 'payment',
-      
       success_url: `${origin}/pricing/payment-success/?success=true&session_id={CHECKOUT_SESSION_ID}`,
       cancel_url: `${origin}/browse-books/${bookId}?canceled=true`, 
     });
 
-    
-    return NextResponse.redirect(session.url, { status: 303 });
+   
+    return NextResponse.json({ url: session.url }, { status: 200 });
 
   } catch (err) {
     console.error("Stripe Checkout Error:", err);

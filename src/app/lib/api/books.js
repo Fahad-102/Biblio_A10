@@ -28,7 +28,7 @@ export const getAllBooks = async (search = "", page = 1) => {
         headers: {
             "Content-Type": "application/json",
         },
-        cache: "no-store" /
+        cache: "no-store" //
     });
     const data = await res.json();
     return data;

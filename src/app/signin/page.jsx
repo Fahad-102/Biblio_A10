@@ -14,6 +14,7 @@ import {
 import { authClient, useSession } from "../lib/auth-client";
 import { FcGoogle } from "react-icons/fc";
 import Link from "next/link";
+import { toast } from "react-toastify"; // 
 
 export default function SignInPage() {
   const [errorMessage, setErrorMessage] = useState("");
@@ -23,6 +24,8 @@ export default function SignInPage() {
   const onSubmit = async (e) => {
     e.preventDefault();
     setErrorMessage("");
+    
+    const id = toast.loading("Verifying your credentials...");
     
     const formData = new FormData(e.currentTarget);
     const userFormData = Object.fromEntries(formData.entries());
@@ -36,16 +39,32 @@ export default function SignInPage() {
         onError: (ctx) => {
           const msg = ctx.error.message || "Invalid email or password";
           setErrorMessage(msg);
-          alert(msg);
+          
+          toast.update(id, { 
+            render: msg, 
+            type: "error", 
+            isLoading: false, 
+            autoClose: 3000 
+          });
         },
         onSuccess: () => {
-          window.location.href = "/";
+          toast.update(id, { 
+            render: "Welcome back! Redirecting... 🎉", 
+            type: "success", 
+            isLoading: false, 
+            autoClose: 2000 
+          });
+          
+          setTimeout(() => {
+            window.location.href = "/";
+          }, 1500);
         }
       }
     });
   };
   
   const handleGoogleSignIn = async () => {
+    const id = toast.loading("Connecting to Google...");
     try {
       await authClient.signIn.social({
         provider: "google",
@@ -53,6 +72,12 @@ export default function SignInPage() {
       });
     } catch (error) {
       console.error("Google Sign-In Error:", error);
+      toast.update(id, { 
+        render: "Google authentication failed.", 
+        type: "error", 
+        isLoading: false, 
+        autoClose: 3000 
+      });
     }
   };
 
@@ -88,12 +113,12 @@ export default function SignInPage() {
           <select
             required
             name="role"
-            defaultValue={user?.role || "buyer"}
+            defaultValue={user?.role || "user"} 
             className="w-full bg-zinc-100 hover:bg-zinc-200 focus:bg-zinc-100 border border-zinc-200 focus:border-zinc-500 rounded-lg p-2.5 text-sm outline-none transition-all cursor-pointer"
           >
             <option value="" disabled hidden>Choose a role</option>
             <option value="librarian">Librarian</option>
-            <option value="user">user</option>
+            <option value="user">User</option>
           </select>
         </div>
 

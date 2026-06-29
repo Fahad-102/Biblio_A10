@@ -1,5 +1,6 @@
 import { DeleteAlert } from "@/app/component/DeleteAlert";
 import { EditModal } from "@/app/component/EditModal";
+import { BuyNowButton } from "@/app/component/BuyNowButton"; 
 import { getBooksById } from "@/app/lib/api/books";
 import { Button } from "@heroui/react";
 import Image from "next/image";
@@ -106,19 +107,7 @@ const BookDetailsPage = async ({ params }) => {
 
               <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 pt-2">
                 
-                <form action="/api/payment" method="POST" className="w-full">
-                  <input type="hidden" name="price" value={book.price} />
-                  <input type="hidden" name="title" value={book.title} />
-                  <input type="hidden" name="bookId" value={book._id} />
-                  
-                  <Button 
-                    type="submit" 
-                    disabled={book.quantity <= 0}
-                    className="w-full bg-purple-600 text-white font-bold py-6 rounded-xl shadow-lg shadow-purple-200 hover:bg-purple-700 transition-all active:scale-[0.98]"
-                  >
-                    Buy Now
-                  </Button>
-                </form>
+                <BuyNowButton book={book} />
 
                 <Button 
                   variant="bordered"

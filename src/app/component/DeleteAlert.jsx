@@ -4,6 +4,7 @@ import { AlertDialog, Button } from "@heroui/react";
 import { useState } from "react";
 import { BiTrash } from "react-icons/bi";
 import { deleteBook } from "../lib/api/books";
+import { toast } from "react-toastify"; 
 
 export function DeleteAlert({ book, onDeleteSuccess }) {
   const [isOpen, setIsOpen] = useState(false);
@@ -11,21 +12,35 @@ export function DeleteAlert({ book, onDeleteSuccess }) {
 
   const handleDelete = async () => {
     setLoading(true);
+    const toastId = toast.loading("Deleting book from library... 🗑️");
     try {
       await deleteBook(book?._id);
-      console.log(`Deleted book: ${book?._id}`);
       
+      toast.update(toastId, {
+        render: "Book deleted successfully.",
+        type: "success",
+        isLoading: false,
+        autoClose: 2000
+      });
+
       setIsOpen(false); 
       
-      if (onDeleteSuccess) {
-        onDeleteSuccess();
-      } else {
-       
-        window.location.href = "/browse-books";
-      }
+      setTimeout(() => {
+        if (onDeleteSuccess) {
+          onDeleteSuccess();
+        } else {
+          window.location.href = "/browse-books";
+        }
+      }, 1000);
     } catch (error) {
       console.error("Failed to delete book:", error);
-    } finally {
+      toast.update(toastId, {
+        render: "Failed to delete the book.",
+        type: "error",
+        isLoading: false,
+        autoClose: 3000
+      });
+    } {
       setLoading(false);
     }
   };
@@ -68,11 +83,7 @@ export function DeleteAlert({ book, onDeleteSuccess }) {
               </AlertDialog.Body>
               
               <AlertDialog.Footer className="flex justify-end gap-2 sm:gap-3 pt-2 border-t border-gray-50">
-                <Button 
-                  onPress={() => setIsOpen(false)} 
-                  variant="flat" 
-                  className="bg-gray-100 text-gray-600 rounded-xl font-medium cursor-pointer"
-                >
+                <Button onPress={() => setIsOpen(false)} variant="flat" className="bg-gray-100 text-gray-600 rounded-xl font-medium cursor-pointer">
                   Cancel
                 </Button>
                 <Button 
@@ -80,7 +91,7 @@ export function DeleteAlert({ book, onDeleteSuccess }) {
                   isLoading={loading}
                   color="danger"
                   variant="solid"
-                  className="bg-red-600 text-white hover:bg-red-700 font-semibold rounded-xl shadow-lg shadow-red-100 cursor-pointer"
+                  className="bg-red-600 text-white hover:bg-red-700 font-semibold rounded-xl shadow-lg cursor-pointer"
                 >
                   Delete Book
                 </Button>

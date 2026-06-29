@@ -1,4 +1,5 @@
 "use client";
+import React from "react";
 import { Check } from "@gravity-ui/icons";
 import {
   Button,
@@ -13,32 +14,65 @@ import {
 import { authClient } from "../lib/auth-client";
 import { FcGoogle } from "react-icons/fc";
 import { useRouter } from "next/navigation";
+import { toast } from "react-toastify"; 
 
 export default function SignUpPage() {
   const router = useRouter();
 
   const onSubmit = async (e) => {
     e.preventDefault();
+    
+    const toastId = toast.loading("Creating your account... 🚀");
+    
     const formData = new FormData(e.currentTarget);
     const user = Object.fromEntries(formData.entries());
 
-    const { data, error } = await authClient.signUp.email({
-      name: user?.name,
-      email: user?.email,
-      password: user?.password,
-      image: user?.image,
-      role: user?.role.toLowerCase(),
-      plan: 'free',
-    }, {
-      onSuccess: () => {
-        router.push("/signin");
-      }
-    });
+    try {
+      const { data, error } = await authClient.signUp.email({
+        name: user?.name,
+        email: user?.email,
+        password: user?.password,
+        image: user?.image,
+        role: user?.role.toLowerCase(),
+        plan: 'free',
+      }, {
+        onSuccess: () => {
+          toast.update(toastId, {
+            render: "Account created successfully! Redirecting to Sign In... 🎉",
+            type: "success",
+            isLoading: false,
+            autoClose: 2000
+          });
+          
+          setTimeout(() => {
+            router.push("/signin");
+          }, 1500);
+        }
+      });
 
-    console.log({ data, error });
+      if (error) {
+        toast.update(toastId, {
+          render: error.message || "Registration failed. Try again.",
+          type: "error",
+          isLoading: false,
+          autoClose: 3000
+        });
+      }
+
+      console.log({ data, error });
+    } catch (err) {
+      console.error(err);
+      toast.update(toastId, {
+        render: "Something went wrong during sign up.",
+        type: "error",
+        isLoading: false,
+        autoClose: 3000
+      });
+    }
   };
 
   const handleGoogleSignUp = async () => {
+    const toastId = toast.loading("Connecting with Google...");
     try {
       await authClient.signIn.social({
         provider: "google",
@@ -46,6 +80,12 @@ export default function SignUpPage() {
       });
     } catch (error) {
       console.error(error);
+      toast.update(toastId, {
+        render: "Google Sign-Up failed.",
+        type: "error",
+        isLoading: false,
+        autoClose: 3000
+      });
     }
   };
 

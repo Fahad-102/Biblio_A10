@@ -41,7 +41,7 @@ export default function Banner() {
   ];
 
   return (
-    <div className="w-full h-[70vh] min-h-[480px] md:h-[80vh] relative bg-background">
+    <div className="w-full h-[70vh] min-h-120 md:h-[80vh] relative bg-background">
       <Swiper
         spaceBetween={0}
         centeredSlides={true}
@@ -64,7 +64,7 @@ export default function Banner() {
               className="absolute inset-0 bg-cover bg-center bg-no-repeat transition-transform duration-700 hover:scale-105"
               style={{ backgroundImage: `url(${slide.image})` }}
             />
-            <div className=" absolute inset-0 bg-gradient-to-r from-black/80 via-black/60 to-transparent md:bg-black/50 z-10" />
+            <div className=" absolute inset-0 bg-linear-to-r from-black/80 via-black/60 to-transparent md:bg-black/50 z-10" />
 
             {/* Slider Content Content */}
             <div className="relative z-20 max-w-7xl mx-auto w-full h-full px-15 flex flex-col justify-center items-start text-white gap-4">
