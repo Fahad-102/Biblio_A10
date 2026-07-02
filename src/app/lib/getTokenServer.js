@@ -7,3 +7,15 @@ export const getTokenServer = async ()=>{
     })
     return token || null;
 }
+
+// import { getTokenServer } from "@/lib/auth-client"; 
+
+// const token = await getTokenServer(); 
+
+// fetch(`${base}/api/dashboard-stats`, {
+//   method: "GET",
+//   headers: {
+//     "Content-Type": "application/json",
+//     "Authorization": `Bearer ${token}` 
+//   },
+// });
