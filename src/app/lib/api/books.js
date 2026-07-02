@@ -1,4 +1,6 @@
-const baseURI = process.env.NEXT_PUBLIC_SERVER_URL || "http://localhost:5000";
+const baseURI =
+  process.env.NEXT_PUBLIC_SERVER_URL ||
+  "http://localhost:5000";
 
 export const getAllBooks = async ({
   search = "",
@@ -19,11 +21,12 @@ export const getAllBooks = async ({
     maxFee,
   });
 
-  const res = await fetch(`${baseURI}/books?${params.toString()}`, {
-    cache: "no-store",
-  });
+  const res = await fetch(
+    `${baseURI}/books?${params.toString()}`,
+    { cache: "no-store" }
+  );
 
-  return await res.json();
+  return res.json();
 };
 
 

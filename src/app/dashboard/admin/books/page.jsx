@@ -75,7 +75,7 @@ export default function AdminBooks() {
       {/* HEADER */}
       <div className="bg-white border rounded-2xl shadow-sm p-6 flex justify-between items-center">
         <div>
-          <h1 className="text-3xl font-bold">Book Management</h1>
+          <h1 className="text-3xl text - bg-purple-700 font-bold">Book Management</h1>
           <p className="text-gray-500">Approve / Reject / Delete books</p>
         </div>
 
