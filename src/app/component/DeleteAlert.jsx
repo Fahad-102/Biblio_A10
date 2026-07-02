@@ -58,6 +58,7 @@ export function DeleteAlert({ book, onDeleteSuccess }) {
       <AlertDialog isOpen={isOpen} onOpenChange={setIsOpen}>
         <AlertDialog.Backdrop>
           <AlertDialog.Container placement="center">
+            {/* 🌟 আপনার ডট মেথডের লেআউটই ব্যাক করা হলো যা স্ট্যাটিকভাবে এক্সিস্ট করে */}
             <AlertDialog.Dialog className="w-full max-w-full sm:max-w-md bg-white rounded-t-3xl sm:rounded-3xl overflow-hidden shadow-2xl border border-gray-100 p-5 sm:p-6 flex flex-col gap-4 relative">
               
               <button 

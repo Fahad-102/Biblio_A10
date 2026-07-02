@@ -1,3 +1,4 @@
+// src/app/layout.js
 import { Plus_Jakarta_Sans } from "next/font/google";
 import "./globals.css";
 import Navbar from "./component/Navbar";
@@ -10,39 +11,18 @@ const jakartaSans = Plus_Jakarta_Sans({
   subsets: ["latin"],
 });
 
-export const metadata = {
-  title: "Book Inventory Management",
-  description: "A seamless platform to manage and borrow books.",
-};
-
 export default function RootLayout({ children }) {
   return (
-    <html
-      lang="en"
+    <html 
+      lang="en" 
       className={`${jakartaSans.variable} h-full antialiased`}
-      suppressHydrationWarning
+      suppressHydrationWarning 
     >
       <body className="min-h-full flex flex-col font-sans bg-slate-50/50">
         <Navbar />
-        
-        <main className="flex-1">
-          {children}
-        </main>
-        
+        <main className="flex-1">{children}</main>
         <Footer />
-
-        <ToastContainer
-          position="top-right"
-          autoClose={3000}
-          hideProgressBar={false}
-          newestOnTop={false}
-          closeOnClick
-          rtl={false}
-          pauseOnFocusLoss
-          draggable
-          pauseOnHover
-          theme="colored" 
-        />
+        <ToastContainer />
       </body>
     </html>
   );

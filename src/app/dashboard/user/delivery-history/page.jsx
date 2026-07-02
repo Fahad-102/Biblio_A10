@@ -1,11 +1,11 @@
 "use client";
 
 import { useEffect, useState } from "react";
-import { DollarSign, Calendar, BookOpen } from "lucide-react";
+import { Package, Calendar, DollarSign } from "lucide-react";
 
 const base = process.env.NEXT_PUBLIC_SERVER_URL;
 
-export default function UserTransactionsPage() {
+export default function DeliveryHistoryPage() {
   const [data, setData] = useState([]);
   const [loading, setLoading] = useState(true);
 
@@ -35,10 +35,10 @@ export default function UserTransactionsPage() {
       {/* Header */}
       <div>
         <h1 className="text-3xl font-bold text-white">
-          My Transactions
+          Delivery History
         </h1>
         <p className="text-gray-400 mt-2">
-          Your delivery and payment history
+          Your book delivery records
         </p>
       </div>
 
@@ -51,7 +51,7 @@ export default function UserTransactionsPage() {
               <th className="px-4 py-3">Book</th>
               <th className="px-4 py-3">Fee</th>
               <th className="px-4 py-3">Status</th>
-              <th className="px-4 py-3">Date</th>
+              <th className="px-4 py-3">Requested</th>
             </tr>
           </thead>
 
@@ -60,7 +60,7 @@ export default function UserTransactionsPage() {
             {data.length === 0 ? (
               <tr>
                 <td colSpan="4" className="text-center py-10 text-gray-500">
-                  No transactions found
+                  No delivery history found
                 </td>
               </tr>
             ) : (
@@ -73,7 +73,7 @@ export default function UserTransactionsPage() {
                   {/* Book */}
                   <td className="px-4 py-3">
                     <div className="flex items-center gap-2">
-                      <BookOpen size={16} className="text-violet-400" />
+                      <Package size={16} className="text-violet-400" />
                       <span className="text-white">{item.title}</span>
                     </div>
                   </td>

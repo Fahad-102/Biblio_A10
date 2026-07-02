@@ -3,135 +3,87 @@ import React, { useState } from "react";
 import { Button, Input, Label, Modal, Surface, TextField } from "@heroui/react";
 import { imageUpload } from "@/app/lib/imgUpload";
 import { addBooks } from "@/app/lib/action/books";
-import { toast } from "react-toastify"; 
+import { toast } from "react-toastify";
 
 export default function AddBooksModal() {
   const [loading, setLoading] = useState(false);
-  const [isOpen, setIsOpen] = useState(false); 
+  const [isOpen, setIsOpen] = useState(false);
 
   const onSubmit = async (e) => {
     e.preventDefault();
     setLoading(true);
-
-  
-    const toastId = toast.loading("Uploading book details and image... 📚");
+    const toastId = toast.loading("Uploading book details...");
 
     try {
       const formData = new FormData(e.target);
-      const data = Object.fromEntries(formData.entries());
+      const file = formData.get("image"); 
       
-     
-      const image = await imageUpload(data.image);
       
-      if (!image?.url) {
-        throw new Error("Image upload failed. Please try again.");
-      }
+      const image = await imageUpload(file);
+      if (!image?.url) throw new Error("Image upload failed.");
 
-      const books = {
-        ...data,
+      const rawData = Object.fromEntries(formData.entries());
+      const bookData = {
+        title: rawData.title,
+        description: rawData.description,
+        price: Number(rawData.price),
+        quantity: Number(rawData.quantity),
         image: image.url,
-        price: Number(data.price),      
-        quantity: Number(data.quantity) 
-      };    
-      
-      const result = await addBooks(books);
+        status: "pending" 
+      };
 
-      if (result?.success || result) { 
-        toast.update(toastId, {
-          render: "New book added to the collection successfully! 🎉",
-          type: "success",
-          isLoading: false,
-          autoClose: 3000
-        });
-        
-        e.target.reset(); 
-        setIsOpen(false);  
+      const result = await addBooks(bookData);
+
+      if (result) {
+        toast.update(toastId, { render: "Book added successfully! 🎉", type: "success", isLoading: false, autoClose: 3000 });
+        e.target.reset();
+        setIsOpen(false);
       } else {
-        throw new Error("Could not save the book to the database.");
+        throw new Error("Failed to save book.");
       }
-
     } catch (error) {
-      console.error("Error adding book:", error);
-      toast.update(toastId, {
-        render: error.message || "Failed to add book. Please try again.",
-        type: "error",
-        isLoading: false,
-        autoClose: 3000
-      });
+      toast.update(toastId, { render: error.message, type: "error", isLoading: false, autoClose: 3000 });
     } finally {
       setLoading(false);
     }
   };
 
   return (
-    <Modal isOpen={isOpen} onOpenChange={setIsOpen}>
-      <Button 
-        onClick={() => setIsOpen(true)}
-        variant="secondary" 
-        className="bg-purple-700 text-white hover:bg-purple-800 cursor-pointer"
-      >
+    <>
+      <Button onClick={() => setIsOpen(true)} className="bg-purple-700 text-white hover:bg-purple-800 cursor-pointer">
         Add New Book
       </Button>
 
-      <Modal.Backdrop>
-        <Modal.Container placement="auto">
-          <Modal.Dialog className="sm:max-w-md bg-white rounded-2xl shadow-xl border border-slate-100">
-            <Modal.CloseTrigger className="cursor-pointer" onClick={() => setIsOpen(false)} />
-            
-            <Modal.Header className="pb-2 border-b border-slate-100">
-              <Modal.Heading className="text-xl font-bold text-slate-900">
-                📚 Add a New Book
-              </Modal.Heading>
-            </Modal.Header>
-            
-            <Modal.Body className="p-6">
-              <Surface variant="default">
+      <Modal isOpen={isOpen} onOpenChange={(open) => setIsOpen(open)}>
+        <Modal.Backdrop>
+          <Modal.Container placement="auto">
+            <Modal.Dialog className="sm:max-w-md bg-white rounded-2xl shadow-xl border border-slate-100 p-6">
+              <Modal.Header>
+                <Modal.Heading className="text-xl font-bold"> Add a New Book</Modal.Heading>
+              </Modal.Header>
+              
+              <Modal.Body className="py-4">
                 <form id="add-book-form" onSubmit={onSubmit} className="flex flex-col gap-4">
+                  <TextField name="title" aria-label="Book Title" required><Input placeholder="e.g., The Great Gatsby" /></TextField>
+                  <TextField name="description" aria-label="Description" required><Input placeholder="Brief summary" /></TextField>
+                  <TextField name="price" aria-label="Price" aria-activedescendantlabel="Price ($)" type="number" required><Input placeholder="12.99" /></TextField>
+                  <TextField name="quantity" aria-label="Quantity" type="number" required><Input placeholder="10" /></TextField>
                   
-                  <TextField className="w-full" name="title" type="text" variant="secondary" required>
-                    <Label className="text-sm font-semibold text-slate-700 mb-1 block">Book Title</Label>
-                    <Input placeholder="e.g., The Great Gatsby" className="w-full" />
-                  </TextField>
-
-                  <TextField className="w-full" name="description" variant="secondary" required>
-                    <Label className="text-sm font-semibold text-slate-700 mb-1 block">Description</Label>
-                    <Input placeholder="Write a brief summary..." className="w-full" />
-                  </TextField>
-
-                  <TextField className="w-full" name="price" type="number" step="0.01" variant="secondary" required>
-                    <Label className="text-sm font-semibold text-slate-700 mb-1 block">Price ($)</Label>
-                    <Input placeholder="e.g., 12.99" className="w-full" />
-                  </TextField>
-
-                  <TextField className="w-full" name="quantity" type="number" variant="secondary" required>
-                    <Label className="text-sm font-semibold text-slate-700 mb-1 block">Quantity</Label>
-                    <Input placeholder="e.g., 10" className="w-full" />
-                  </TextField>
-
-                  <TextField className="w-full" variant="secondary" required>
-                    <Label className="text-sm font-semibold text-slate-700 mb-1 block">Book Image</Label>
-                    <input name="image" type="file" accept="image/*" className="w-full text-sm text-slate-500 file:mr-4 file:py-2 file:px-4 file:rounded-full file:border-0 file:text-sm file:font-semibold file:bg-purple-50 file:text-purple-700 hover:file:bg-purple-100 cursor-pointer" />
-                  </TextField>
-
-                  <Modal.Footer className="pt-4 border-t border-slate-100 flex justify-end gap-2">
-                    <Button type="button" variant="secondary" className="cursor-pointer" onClick={() => setIsOpen(false)}>
-                      Cancel
-                    </Button>
-                    <Button 
-                      type="submit" 
-                      form="add-book-form"
-                      disabled={loading}
-                      className="bg-purple-700 text-white hover:bg-purple-900 cursor-pointer disabled:opacity-50"
-                    >
+                  <Label className="text-sm font-semibold text-slate-700">Book Image</Label>
+                  <input name="image" type="file" accept="image/*" className="w-full text-sm p-2 border rounded-full" required />
+                  
+                  <div className="flex justify-end gap-2 pt-4">
+                    <Button type="button" onClick={() => setIsOpen(false)}>Cancel</Button>
+                    <Button type="submit" disabled={loading} className="bg-purple-700 text-white">
                       {loading ? "Adding..." : "Add Book"}
                     </Button>
-                  </Modal.Footer>
+                  </div>
                 </form>
-              </Surface>
-            </Modal.Body>
-          </Modal.Dialog>
-        </Modal.Container>
-      </Modal.Backdrop>
-    </Modal>
+              </Modal.Body>
+            </Modal.Dialog>
+          </Modal.Container>
+        </Modal.Backdrop>
+      </Modal>
+    </>
   );
 }

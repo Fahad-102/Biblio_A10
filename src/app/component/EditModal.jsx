@@ -3,9 +3,9 @@
 import { Button, Input, Modal, Surface } from "@heroui/react";
 import { useState } from "react";
 import { FaEdit, FaBookOpen } from "react-icons/fa";
-import { editBooksId } from "../lib/api/books";
 import { imageUpload } from "@/app/lib/imgUpload"; 
 import { toast } from "react-toastify"; 
+import { updateBook } from "../lib/api/books";
 
 export function EditModal({ book }) {
   const [isOpen, setIsOpen] = useState(false);
@@ -37,7 +37,7 @@ export function EditModal({ book }) {
       };
 
       // API Call
-      await editBooksId(book?._id, updatedBookData);
+      await updateBook(book?._id, updatedBookData);
       
       toast.update(toastId, {
         render: "Book updated successfully! 🎉",

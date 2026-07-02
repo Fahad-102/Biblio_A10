@@ -1,164 +1,163 @@
 "use client";
-import React, { useState, useEffect } from 'react';
-import { Shield, Trash2, UserCheck, UserX, Loader2 } from 'lucide-react';
 
-export default function UserManagePage() {
-  const [users, setUsers] = useState([]);
+import { useEffect, useState } from "react";
+import {
+  BookOpen,
+  CheckCircle2,
+  XCircle,
+  Trash2,
+} from "lucide-react";
+
+const base = process.env.NEXT_PUBLIC_SERVER_URL;
+
+export default function AdminBooks() {
+  const [books, setBooks] = useState([]);
   const [loading, setLoading] = useState(true);
 
-  useEffect(() => {
-    fetchUsers();
-  }, []);
-
-  const fetchUsers = async () => {
+  const loadBooks = async () => {
     try {
-      const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL || 'http://localhost:5000'}/api/users`);
-      
-      const contentType = res.headers.get("content-type");
-      if (!contentType || !contentType.includes("application/json")) {
-        throw new TypeError("Oops, we didn't get JSON from the server!");
-      }
+      setLoading(true);
+
+      const res = await fetch(`${base}/api/admin/books`, {
+        credentials: "include",
+      });
 
       const data = await res.json();
-      setUsers(data);
-    } catch (error) {
-      console.log("Using safe mock data due to API unavailability.");
-      setUsers([
-        { _id: "1", name: "Fahad Ahmed", email: "fahad@gmail.com", role: "user" },
-        { _id: "2", name: "Rahat Rahman", email: "rahat@gmail.com", role: "librarian" },
-        { _id: "3", name: "Admin Bhai", email: "admin@gmail.com", role: "admin" },
-        { _id: "4", name: "Sultana Reza", email: "sultana@gmail.com", role: "user" },
-      ]);
+
+      console.log("API RESPONSE:", data);
+
+      // ✅ SAFE FIX (always array)
+      setBooks(Array.isArray(data) ? data : []);
+    } catch (err) {
+      console.log(err);
+      setBooks([]);
     } finally {
       setLoading(false);
     }
   };
 
-  const handleRoleChange = async (userId, newRole) => {
-    if (!confirm(`Are you sure you want to change this user's role to ${newRole}?`)) return;
+  useEffect(() => {
+    loadBooks();
+  }, []);
 
-    try {
-      const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL || 'http://localhost:5000'}/api/users/${userId}`, {
-        method: 'PATCH',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ role: newRole })
-      });
+  const updateStatus = async (id, action) => {
+    await fetch(`${base}/api/admin/books/${action}/${id}`, {
+      method: "PATCH",
+      credentials: "include",
+    });
 
-      if (res.ok) {
-        alert("Role updated successfully!");
-        fetchUsers();
-      }
-    } catch (error) {
-      console.error("Error updating role:", error);
-      setUsers(users.map(u => u._id === userId ? { ...u, role: newRole } : u));
-    }
+    loadBooks();
   };
 
-  const handleUserDelete = async (userId) => {
-    if (!confirm("Are you sure you want to delete this user completely?")) return;
+  const deleteBook = async (id) => {
+    const ok = confirm("Delete this book?");
+    if (!ok) return;
 
-    try {
-      const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL || 'http://localhost:5000'}/api/users/${userId}`, {
-        method: 'DELETE'
-      });
+    await fetch(`${base}/api/admin/books/${id}`, {
+      method: "DELETE",
+      credentials: "include",
+    });
 
-      if (res.ok) {
-        alert("User deleted successfully!");
-        fetchUsers();
-      }
-    } catch (error) {
-      console.error("Error deleting user:", error);
-      setUsers(users.filter(u => u._id !== userId));
-    }
+    loadBooks();
   };
 
   if (loading) {
     return (
-      <div className="min-h-[60vh] flex flex-col justify-center items-center gap-2">
-        <Loader2 className="animate-spin text-indigo-600" size={40} />
-        <p className="text-sm font-medium text-slate-500">Loading User Directory...</p>
+      <div className="flex justify-center items-center h-[60vh]">
+        <span className="loading loading-spinner loading-lg"></span>
       </div>
     );
   }
 
   return (
-    <div className="p-6 max-w-7xl mx-auto space-y-6">
-      <div>
-        <h2 className="text-2xl font-bold text-slate-800 tracking-tight">Manage System Users</h2>
-        <p className="text-slate-500 text-sm mt-1">Review permissions, change platform roles, or revoke user accounts.</p>
+    <div className="space-y-6">
+
+      {/* HEADER */}
+      <div className="bg-white border rounded-2xl shadow-sm p-6 flex justify-between items-center">
+        <div>
+          <h1 className="text-3xl font-bold">Book Management</h1>
+          <p className="text-gray-500">Approve / Reject / Delete books</p>
+        </div>
+
+        <BookOpen size={30} />
       </div>
 
-      <div className="bg-white rounded-2xl border border-slate-100 shadow-xs overflow-hidden">
-        <div className="overflow-x-auto">
-          <table className="w-full text-left border-collapse">
-            <thead>
-              <tr className="bg-slate-50 border-b border-slate-100 text-slate-400 text-xs font-semibold uppercase tracking-wider">
-                <th className="p-4 pl-6">Name</th>
-                <th className="p-4">Email</th>
-                <th className="p-4">Current Role</th>
-                <th className="p-4 text-center">Actions / Change Role</th>
+      {/* TABLE */}
+      <div className="bg-white border rounded-2xl overflow-hidden">
+
+        <table className="w-full text-sm">
+
+          <thead className="bg-gray-100">
+            <tr>
+              <th className="p-4 text-left">Title</th>
+              <th className="p-4 text-left">Status</th>
+              <th className="p-4 text-center">Actions</th>
+            </tr>
+          </thead>
+
+          <tbody>
+
+            {books.length === 0 ? (
+              <tr>
+                <td colSpan="3" className="text-center p-10 text-gray-500">
+                  No books found in database
+                </td>
               </tr>
-            </thead>
-            
-            <tbody className="divide-y divide-slate-100 text-sm text-slate-700">
-              {users.map((user) => (
-                <tr key={user._id} className="hover:bg-slate-50/80 transition-colors">
-                  <td className="p-4 pl-6 font-semibold text-slate-900">{user.name}</td>
-                  <td className="p-4 text-slate-500">{user.email}</td>
+            ) : (
+              books.map((book) => (
+                <tr key={book._id} className="border-t">
+
+                  <td className="p-4 font-medium">
+                    {book.title}
+                  </td>
+
                   <td className="p-4">
-                    <span className={`px-2.5 py-1 rounded-md text-xs font-bold capitalize ${
-                      user.role === 'admin' ? 'bg-red-50 text-red-600 border border-red-100' :
-                      user.role === 'librarian' ? 'bg-violet-50 text-violet-600 border border-violet-100' :
-                      'bg-slate-50 text-slate-600 border border-slate-200'
-                    }`}>
-                      {user.role}
+                    <span className={`px-3 py-1 rounded-full text-xs font-bold
+                      ${book.status === "Published"
+                        ? "bg-green-100 text-green-700"
+                        : book.status === "Pending"
+                        ? "bg-yellow-100 text-yellow-700"
+                        : "bg-red-100 text-red-700"
+                      }`}>
+                      {book.status}
                     </span>
                   </td>
 
                   <td className="p-4">
-                    <div className="flex items-center justify-center gap-2">
-                      {user.role !== 'librarian' && user.role !== 'admin' && (
-                        <button
-                          onClick={() => handleRoleChange(user._id, 'librarian')}
-                          className="px-2 py-1 text-xs bg-violet-50 text-violet-600 hover:bg-violet-600 hover:text-white transition-colors gap-1 rounded-lg"
-                        >
-                          + Librarian
-                        </button>
-                      )}
-
-                      {user.role !== 'admin' && (
-                        <button
-                          onClick={() => handleRoleChange(user._id, 'admin')}
-                          className="px-2 py-1 text-xs bg-red-50 text-red-600 hover:bg-red-600 hover:text-white transition-colors gap-1 rounded-lg"
-                        >
-                          + Admin
-                        </button>
-                      )}
-
-                      {user.role !== 'user' && (
-                        <button
-                          onClick={() => handleRoleChange(user._id, 'user')}
-                          className="px-2 py-1 text-xs bg-slate-100 text-slate-600 hover:bg-slate-700 hover:text-white transition-colors gap-1 rounded-lg"
-                        >
-                          Demote
-                        </button>
-                      )}
-
-                      <div className="w-px h-4 bg-slate-200 mx-1"></div>
+                    <div className="flex gap-2 justify-center">
 
                       <button
-                        onClick={() => handleUserDelete(user._id)}
-                        className="text-red-500 hover:bg-red-50 p-1.5 rounded-lg transition-colors"
+                        onClick={() => updateStatus(book._id, "approve")}
+                        className="bg-green-600 text-white px-3 py-1 rounded"
                       >
-                        <Trash2 size={15} />
+                        <CheckCircle2 size={16} />
                       </button>
+
+                      <button
+                        onClick={() => updateStatus(book._id, "reject")}
+                        className="bg-yellow-500 text-white px-3 py-1 rounded"
+                      >
+                        <XCircle size={16} />
+                      </button>
+
+                      <button
+                        onClick={() => deleteBook(book._id)}
+                        className="bg-red-600 text-white px-3 py-1 rounded"
+                      >
+                        <Trash2 size={16} />
+                      </button>
+
                     </div>
                   </td>
+
                 </tr>
-              ))}
-            </tbody>
-          </table>
-        </div>
+              ))
+            )}
+
+          </tbody>
+
+        </table>
+
       </div>
     </div>
   );

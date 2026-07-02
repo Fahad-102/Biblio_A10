@@ -1,10 +1,19 @@
+
+"use client"; 
 import DashboardOverview from "@/app/component/DashboardOverview";
-import { auth } from "@/app/lib/auth";
-import { headers } from "next/headers";
+import { useEffect, useState } from "react";
 
-export default async function AdminChart() {
-  const session = await auth.api.getSession({ headers: await headers() });
-  const role = session?.user?.role || "admin";
+export default function AdminChart() {
+  const [session, setSession] = useState(null);
 
-  return <DashboardOverview role={role} />;
+  useEffect(() => {
+    
+    fetch("/api/auth/get-session")
+      .then(res => res.json())
+      .then(data => setSession(data));
+  }, []);
+
+  if (!session) return <div>Loading...</div>;
+
+  return <DashboardOverview role={session.user.role} token={session.session.token} />;
 }

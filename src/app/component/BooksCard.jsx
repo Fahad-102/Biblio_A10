@@ -24,6 +24,8 @@ const BookCard = ({ book }) => {
           sizes="(max-width: 640px) 100vw, (max-width: 1024px) 50vw, 25vw"
           className="object-cover group-hover:scale-105 transition-transform duration-500"
           unoptimized={true}
+          priority={true}
+          suppressHydrationWarning={true}
         />
         <div className="absolute top-3 right-3 z-10">
           <span className={`text-xs font-semibold px-2.5 py-1 rounded-lg shadow-sm border ${

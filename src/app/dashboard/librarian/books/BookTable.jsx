@@ -1,72 +1,95 @@
-"use client"
-import {Pagination, Table} from "@heroui/react";
-import Link from "next/link";
+"use client";
 
-export default function BookTable({booksData}) {
-    const books = booksData.data;
-    const page = booksData.page;
-    const pages = []
-    const totalPages = booksData.totalPage;
-    for(let i=1; i<=totalPages; i++){
-        pages.push(i)
-    }
+import { EditModal } from "@/app/component/EditModal";
+import { DeleteAlert } from "@/app/component/DeleteAlert";
+import { unpublishBook } from "@/app/lib/api/books";
+
+export default function BookTable({ booksData }) {
+  const books = booksData?.books || [];
+  const handleUnpublish = async (id) => {
+  const res = await unpublishBook(id);
+
+  if (res.success) {
+    alert("Book unpublished successfully");
+    window.location.reload();
+  } else {
+    alert("Failed");
+  }
+};
+
+  if (books.length === 0) {
+    return (
+      <p className="text-center mt-10 text-gray-500">
+        No books found!
+      </p>
+    );
+  }
+
   return (
-    <Table>
-      <Table.ScrollContainer>
-        <Table.Content aria-label="Team members" className="min-w-150">
-          <Table.Header>
-            <Table.Column isRowHeader>#</Table.Column>
-            <Table.Column>Title</Table.Column>
-            <Table.Column>Price</Table.Column>
-            <Table.Column>Quantity</Table.Column>
-          </Table.Header>
-          <Table.Body>
-           {books.map((book,index)=> <Table.Row key={book._id}>
-              <Table.Cell>{index+1}</Table.Cell>
-              <Table.Cell>{book.title}</Table.Cell>
-              <Table.Cell>{book.price}</Table.Cell>
-              <Table.Cell>{book.quantity}</Table.Cell>
-            </Table.Row>)}
-          </Table.Body>
-        </Table.Content>
-      </Table.ScrollContainer>
-      <Table.Footer>
-        <Pagination size="sm" className="flex justify-center">
-         
-          <Pagination.Content>
-            <Pagination.Item>
-              <Pagination.Previous
-                isDisabled={page === 1}
-              >
-                <Link className="flex gap-2" href={`/dashboard/librarian/books?page=${page-1}`}>
-                <Pagination.PreviousIcon />
-                Prev
-                </Link>
-              </Pagination.Previous>
-            </Pagination.Item>
-            {pages.map((p) => (
-              <Pagination.Item key={p}>
-                
-                <Link href={`/dashboard/librarian/books?page=${p}`}>
-                <Pagination.Link className={`${p === page && 'bg-purple-700 text-white'}`} isActive={p === page}>
-                  {p}
-                </Pagination.Link>
-                </Link>
-              </Pagination.Item>
-            ))}
-            <Pagination.Item>
-              <Pagination.Next
-                isDisabled={page === totalPages}
-              >
-                <Link className="flex gap-2" href={`/dashboard/librarian/books?page=${page+1}`}>
-                Next
-                <Pagination.NextIcon />
-                </Link>
-              </Pagination.Next>
-            </Pagination.Item>
-          </Pagination.Content>
-        </Pagination>
-      </Table.Footer>
-    </Table>
+    <div className="overflow-x-auto border rounded-xl shadow-sm bg-white">
+      <table className="table w-full">
+        <thead className="bg-gray-100">
+          <tr>
+            <th>#</th>
+            <th>Title</th>
+            <th>Status</th>
+            <th>Price</th>
+            <th>Quantity</th>
+            <th className="text-center">Actions</th>
+          </tr>
+        </thead>
+
+        <tbody>
+          {books.map((book, index) => (
+            <tr key={book._id}>
+              <td>
+                {(booksData.currentPage - 1) * 6 + index + 1}
+              </td>
+
+              <td className="font-semibold">
+                {book.title}
+              </td>
+
+              <td>
+                <span
+                  className={`badge ${
+                    book.status === "Published"
+                      ? "badge-success"
+                      : book.status === "Pending"
+                      ? "badge-warning"
+                      : "badge-error"
+                  }`}
+                >
+                  {book.status}
+                </span>
+              </td>
+
+              <td>৳{book.price}</td>
+
+              <td>{book.quantity}</td>
+
+              <td>
+                <div className="flex gap-2 justify-center flex-wrap">
+
+                  <EditModal book={book} />
+
+                  <DeleteAlert book={book} />
+
+                  {book.status === "Published" && (
+                    <button
+  onClick={() => handleUnpublish(book._id)}
+  className="btn btn-warning btn-sm"
+>
+  Unpublish
+</button>
+                  )}
+
+                </div>
+              </td>
+            </tr>
+          ))}
+        </tbody>
+      </table>
+    </div>
   );
 }

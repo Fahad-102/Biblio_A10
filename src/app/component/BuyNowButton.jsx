@@ -1,39 +1,100 @@
 "use client";
+
 import React, { useState, useEffect } from "react";
 import { Button } from "@heroui/react";
 import { toast } from "react-toastify";
+import { useSession } from "../lib/auth-client";
+import { requestDelivery } from "../lib/api/books";
 
-export function BuyNowButton({ book }) {
+export function BuyNowButton({ book, disabled = false }) {
   const [loading, setLoading] = useState(false);
+  const [isMounted, setIsMounted] = useState(false);
+
+  const { data: session } = useSession();
 
   useEffect(() => {
-    setLoading(false);
+    setIsMounted(true);
   }, []);
 
-  const handleBuyClick = (e) => {
-    if (loading) {
-      e.preventDefault();
+  const currentUserId = session?.user?.id || session?.user?._id;
+  const bookOwnerId = book?.userId
+    ? String(book.userId).trim()
+    : null;
+  const loggedInUserId = currentUserId
+    ? String(currentUserId).trim()
+    : null;
+
+  const isOwner =
+    bookOwnerId &&
+    loggedInUserId &&
+    bookOwnerId === loggedInUserId;
+
+  const isUnavailable =
+    book?.availability === "Unavailable" ||
+    book?.status !== "Published";
+
+  const isDisabled =
+    disabled ||
+    isOwner ||
+    isUnavailable ||
+    loading;
+
+  const handleSubmit = async (e) => {
+    e.preventDefault();
+
+    if (!session) {
+      toast.error("Please login first.");
       return;
     }
-    
+
+    if (isDisabled) return;
+
     setLoading(true);
-    toast.info(`Redirecting to Stripe secure checkout... 💳`, {
-      autoClose: 3000,
-    });
+
+    try {
+      const res = await requestDelivery(book._id);
+
+      if (res.success) {
+        toast.success(res.message);
+      } else {
+        toast.error(res.message || "Request failed.");
+      }
+    } catch (error) {
+      console.error(error);
+      toast.error("Something went wrong.");
+    }
+
+    setLoading(false);
   };
 
-  return (
-    <form action="/api/payment" method="POST" className="w-full" onSubmit={handleBuyClick}>
-      <input type="hidden" name="price" value={book.price} />
-      <input type="hidden" name="title" value={book.title} />
-      <input type="hidden" name="bookId" value={book._id} />
-      
-      <Button 
-        type="submit" 
-        disabled={book.quantity <= 0 || loading}
-        className="w-full bg-purple-600 text-white font-bold py-6 rounded-xl shadow-lg shadow-purple-200 hover:bg-purple-700 transition-all active:scale-[0.98] disabled:opacity-70 disabled:cursor-not-allowed cursor-pointer"
+  if (!isMounted) {
+    return (
+      <Button
+        isDisabled
+        className="w-full py-6"
       >
-        {loading ? "Processing..." : book.quantity <= 0 ? "Out of Stock" : "Buy Now"}
+        Loading...
+      </Button>
+    );
+  }
+
+  return (
+    <form
+      className="w-full"
+      onSubmit={handleSubmit}
+    >
+      <Button
+        type="submit"
+        isDisabled={isDisabled}
+        className="w-full bg-purple-600 text-white font-bold py-6 rounded-xl"
+      >
+        {loading
+          ? "Requesting..."
+          : isOwner
+          ? "Your Own Book"
+          : isUnavailable
+          ? "Unavailable"
+          : "Request Delivery"}
       </Button>
     </form>
   );

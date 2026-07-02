@@ -4,15 +4,28 @@ import Link from "next/link"
 import { getAllBooks } from "../lib/api/books";
 
 const AllBooksPage = async ({ searchParams }) => {
-  const params = await searchParams;
-  const search = params.search || "";
-  const currentPage = Number(params.page) || 1;
+ const params = await searchParams;
 
-  const response = await getAllBooks(search, currentPage);
-  
-  const books = response?.data || [];
-  const totalPage = response?.totalPage || 1;
+const response = await getAllBooks({
+  search: params.search || "",
+  page: Number(params.page) || 1,
+  limit: 6,
+  category: params.category || "",
+  availability: params.availability || "",
+  minFee: params.minFee || "",
+  maxFee: params.maxFee || "",
+});
 
+const books = response.books || [];
+const totalPage = response.totalPages || 1;
+const currentPage = response.currentPage || 1;
+const category = params.category || "";
+const availability = params.availability || "";
+const minFee = params.minFee || "";
+const maxFee = params.maxFee || "";
+
+const search = params.search || "";
+const query = `&search=${search}&category=${category}&availability=${availability}&minFee=${minFee}&maxFee=${maxFee}`;
   return (
     <div className="min-h-screen bg-gray-50 py-10 px-4 sm:px-6 lg:px-8">
       <div className="max-w-7xl mx-auto">
@@ -27,8 +40,14 @@ const AllBooksPage = async ({ searchParams }) => {
             </p>
           </div>
           
-          <div className="w-full md:w-80">
-            <SearchBooks />
+          <div className="w-full md:max-w-xl lg:max-w-2xl">
+            <SearchBooks
+  search={search}
+  category={category}
+  availability={availability}
+  minFee={minFee}
+  maxFee={maxFee}
+/>
           </div>
         </div>
 
@@ -53,7 +72,7 @@ const AllBooksPage = async ({ searchParams }) => {
         {totalPage > 1 && (
           <div className="flex justify-center items-center gap-4 mt-12 pt-6 border-t border-gray-200">
             <Link
-              href={`?page=${currentPage - 1}${search ? `&search=${search}` : ""}`}
+             href={`?page=${currentPage - 1}${query}`}
               className={`px-4 py-2 text-sm font-medium rounded-md border ${
                 currentPage <= 1
                   ? "bg-gray-100 text-gray-400 pointer-events-none"
@@ -68,7 +87,7 @@ const AllBooksPage = async ({ searchParams }) => {
             </span>
 
             <Link
-              href={`?page=${currentPage + 1}${search ? `&search=${search}` : ""}`}
+              href={`?page=${currentPage + 1}${query}`}
               className={`px-4 py-2 text-sm font-medium rounded-md border ${
                 currentPage >= totalPage
                   ? "bg-gray-100 text-gray-400 pointer-events-none"

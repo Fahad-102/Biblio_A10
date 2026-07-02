@@ -1,5 +1,5 @@
+
 import { DeleteAlert } from "@/app/component/DeleteAlert";
-import { EditModal } from "@/app/component/EditModal";
 import { BuyNowButton } from "@/app/component/BuyNowButton"; 
 import { getBooksById } from "@/app/lib/api/books";
 import { Button } from "@heroui/react";
@@ -7,10 +7,12 @@ import Image from "next/image";
 import Link from "next/link";
 import { headers } from "next/headers"; 
 import { auth } from "@/app/lib/auth";
+import { EditModal } from "@/app/component/EditModal";
 
 const BookDetailsPage = async ({ params }) => {
   const { id } = await params;
   const book = await getBooksById(id);
+console.log("Current ID from params:", id);
 
   const session = await auth.api.getSession({
     headers: await headers(),
@@ -25,6 +27,16 @@ const BookDetailsPage = async ({ params }) => {
 
   const isOwner = bookOwnerId && loggedInUserId && bookOwnerId === loggedInUserId;
   const canModify = userRole === "admin" || (userRole === "librarian" && isOwner);
+  const isUnavailable =
+  book?.availability === "Unavailable" ||
+  book?.status !== "Published";
+
+const isOwnBook =
+  loggedInUserId &&
+  bookOwnerId &&
+  loggedInUserId === bookOwnerId;
+
+const disableRequest = isUnavailable || isOwnBook;
 
   if (!book) {
     return (
@@ -69,6 +81,8 @@ const BookDetailsPage = async ({ params }) => {
               unoptimized
               className="object-contain p-4 group-hover:scale-102 transition-transform duration-300"
               sizes="(max-width: 768px) 100vw, 50vw"
+              suppressHydrationWarning
+
             />
           </div>
 
@@ -96,10 +110,18 @@ const BookDetailsPage = async ({ params }) => {
               </div>
 
               <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 pt-2">
-                <BuyNowButton book={book} />
-                <Button variant="bordered" className="w-full font-bold py-6 rounded-xl">
+                <BuyNowButton
+                 book={book}
+                 session={session}
+                   disabled={disableRequest}
+                            />
+                <Button 
+                variant="bordered" className="w-full font-bold py-6 rounded-xl">
                   Add to Borrow List
                 </Button>
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 pt-2">
+               </div>
+
               </div>
             </div>
           </div>
