@@ -3,44 +3,52 @@ import React, { useEffect, useState } from 'react';
 import { BarChart, Bar, XAxis, YAxis, Tooltip, ResponsiveContainer, LineChart, Line, CartesianGrid } from 'recharts';
 import { BookOpen, DollarSign, Clock, Users } from 'lucide-react';
 
-export default function DashboardOverview({ role, token }) {
+export default function DashboardOverview({ role = 'admin', token }) {
   const [stats, setStats] = useState(null);
   const [loading, setLoading] = useState(true);
-  console.log("Checking Token before fetch:", token);
 
-useEffect(() => {
-  if (!token) return; 
+  useEffect(() => {
+    const API_BASE_URL = process.env.NODE_ENV === 'production' 
+      ? "https://biblio-drop-a10.vercel.app" 
+      : "http://localhost:5000";
 
-  const API_BASE_URL = process.env.NODE_ENV === 'production' 
-    ? "https://biblio-server-a10.vercel.app" 
-    : "http://localhost:5000";
+    // Role dynamic API Endpoint determination
+    let endpoint = `${API_BASE_URL}/api/admin/overview`;
+    if (role === 'librarian') {
+      endpoint = `${API_BASE_URL}/api/librarian/overview`;
+    } else if (role === 'user') {
+      endpoint = `${API_BASE_URL}/api/user/delivery-history`;
+    }
 
-  console.log("Sending Request with Token:", token); 
+    const headers = {
+      "Content-Type": "application/json"
+    };
 
- 
-fetch(`${API_BASE_URL}/api/dashboard-stats`, {
-  method: "GET",
-  headers: {
-    "Content-Type": "application/json"
-  },
-  credentials: "include" 
-})
-  .then(res => {
-    if (!res.ok) throw new Error(`Status: ${res.status}`);
-    return res.json();
-  })
-  .then(data => {
-    setStats(data);
-    setLoading(false);
-  })
-  .catch(err => {
-    console.error("Fetch Error:", err);
-    setLoading(false);
-  });
-}, [token]);
+    if (token) {
+      headers["Authorization"] = `Bearer ${token}`;
+    }
 
-  if (loading) return <div className="p-10 text-center">Loading Dashboard...</div>;
-  if (!stats) return <div className="p-10 text-center">Failed to load statistics.</div>;
+    fetch(endpoint, {
+      method: "GET",
+      headers: headers,
+      credentials: "include" 
+    })
+      .then(res => {
+        if (!res.ok) throw new Error(`Status: ${res.status}`);
+        return res.json();
+      })
+      .then(data => {
+        setStats(data);
+        setLoading(false);
+      })
+      .catch(err => {
+        console.error("Dashboard Stats Fetch Error:", err);
+        setLoading(false);
+      });
+  }, [role, token]);
+
+  if (loading) return <div className="p-10 text-center text-zinc-500 font-medium">Loading Dashboard Statistics...</div>;
+  if (!stats) return <div className="p-10 text-center text-red-500 font-medium">Failed to load statistics. Please check server logs.</div>;
 
   const getDisplayStats = () => {
     if (role === 'admin') return [
@@ -50,16 +58,16 @@ fetch(`${API_BASE_URL}/api/dashboard-stats`, {
     ];
     if (role === 'librarian') return [
       { title: "My Books", value: stats.myBooks || 0, icon: BookOpen, color: "text-violet-600" },
-      { title: "Pending Requests", value: stats.pendingRequests || 0, icon: Clock, color: "text-amber-500" },
-      { title: "Total Earnings", value: `$${stats.totalEarnings || 0}`, icon: DollarSign, color: "text-emerald-600" }
+      { title: "Pending Requests", value: stats.totalRequests || 0, icon: Clock, color: "text-amber-500" },
+      { title: "Published Books", value: stats.publishedBooks || 0, icon: DollarSign, color: "text-emerald-600" }
     ];
     return [
-      { title: "Books Borrowed", value: stats.totalBorrowed || 0, icon: BookOpen, color: "text-indigo-600" },
-      { title: "Total Spent", value: `$${stats.totalSpent || 0}`, icon: DollarSign, color: "text-emerald-600" }
+      { title: "My Requests", value: Array.isArray(stats) ? stats.length : 0, icon: BookOpen, color: "text-indigo-600" },
+      { title: "Completed Deliveries", value: Array.isArray(stats) ? stats.filter(s => s.status === 'Delivered').length : 0, icon: DollarSign, color: "text-emerald-600" }
     ];
   };
 
-  const data = [
+  const chartData = [
     { name: 'Jan', value: 240 },
     { name: 'Feb', value: 360 },
     { name: 'Mar', value: 500 },
@@ -94,7 +102,7 @@ fetch(`${API_BASE_URL}/api/dashboard-stats`, {
           <h4 className="font-bold text-slate-800 text-sm mb-6 uppercase tracking-wider">Activity Overview</h4>
           <div className="h-64">
             <ResponsiveContainer width="100%" height="100%">
-              <BarChart data={data}>
+              <BarChart data={chartData}>
                 <CartesianGrid strokeDasharray="3 3" vertical={false} stroke="#f1f5f9" />
                 <XAxis dataKey="name" stroke="#94a3b8" fontSize={11} tickLine={false} />
                 <YAxis stroke="#94a3b8" fontSize={11} tickLine={false} axisLine={false} />
@@ -109,7 +117,7 @@ fetch(`${API_BASE_URL}/api/dashboard-stats`, {
           <h4 className="font-bold text-slate-800 text-sm mb-6 uppercase tracking-wider">Analytics & Trends</h4>
           <div className="h-64">
             <ResponsiveContainer width="100%" height="100%">
-              <LineChart data={data}>
+              <LineChart data={chartData}>
                 <CartesianGrid strokeDasharray="3 3" vertical={false} stroke="#f1f5f9" />
                 <XAxis dataKey="name" stroke="#94a3b8" fontSize={11} tickLine={false} />
                 <YAxis stroke="#94a3b8" fontSize={11} tickLine={false} axisLine={false} />

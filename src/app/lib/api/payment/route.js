@@ -1,18 +1,27 @@
 import { NextResponse } from 'next/server';
 import { headers } from 'next/headers';
-import { stripe } from '@/app/lib/stripe'; 
+import { stripe, PRICE_ID } from '@/app/lib/stripe'; 
 import { auth } from '../../auth';
 
 export async function POST(req) { 
   try {
     const formData = await req.formData();
-    const price = formData.get("price");
-    const title = formData.get("title");
-    const bookId = formData.get("bookId");
+    // ফ্রন্টএন্ড থেকে planId আসুক কিংবা planKey, উভয়কেই রিসিভ করার জন্য:
+    const planKey = formData.get("planId") || formData.get("planKey"); 
 
-    if (!price || !title || !bookId) {
+    if (!planKey) {
       return NextResponse.json(
-        { error: "Missing required fields: price, title, or bookId" },
+        { error: "Missing required field: planId" },
+        { status: 400 }
+      );
+    }
+
+    // সঠিক प्राइस আইডি বের করা (যেমন: user_pro, user_elite ইত্যাদি)
+    const priceId = PRICE_ID[planKey];
+
+    if (!priceId) {
+      return NextResponse.json(
+        { error: `Invalid subscription plan selected: ${planKey}` },
         { status: 400 }
       );
     }
@@ -32,38 +41,31 @@ export async function POST(req) {
 
     if (!user) {
       return NextResponse.json(
-        { error: "Please log in to your account first to make a purchase." },
+        { error: "Please log in to your account first to subscribe." },
         { status: 401 }
       );
     }
 
+    // স্ট্রাইপ চেকআউট সেশন তৈরি (সাবস্ক্রিপশন মোড)
     const session = await stripe.checkout.sessions.create({
       customer_email: user?.email || undefined,
       line_items: [
         {
-          price_data: {
-            currency: "usd",
-            unit_amount: Math.round(Number(price) * 100), 
-            product_data: {
-              name: title,
-            }
-          },
+          price: priceId,
           quantity: 1,
         },
       ],
       metadata: {
-        price: Number(price), 
+        planKey: planKey,
+        priceId: priceId,
         userId: user?.id || "guest",
-        userEmail: user?.email || "guest@example.com",
-        title,
-        bookId
+        userEmail: user?.email || "guest@example.com"
       },
-      mode: 'payment',
-      success_url: `${origin}/pricing/payment-success/?success=true&session_id={CHECKOUT_SESSION_ID}`,
-      cancel_url: `${origin}/browse-books/${bookId}?canceled=true`, 
+      mode: 'subscription',
+      success_url: `${origin}/subscription/success?success=true&session_id={CHECKOUT_SESSION_ID}`,
+      cancel_url: `${origin}/subscription?canceled=true`, 
     });
 
-   
     return NextResponse.json({ url: session.url }, { status: 200 });
 
   } catch (err) {

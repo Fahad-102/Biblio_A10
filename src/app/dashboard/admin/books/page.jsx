@@ -23,13 +23,9 @@ export default function AdminBooks() {
       });
 
       const data = await res.json();
-
-      console.log("API RESPONSE:", data);
-
-      // ✅ SAFE FIX (always array)
       setBooks(Array.isArray(data) ? data : []);
     } catch (err) {
-      console.log(err);
+      console.error(err);
       setBooks([]);
     } finally {
       setLoading(false);
@@ -41,24 +37,40 @@ export default function AdminBooks() {
   }, []);
 
   const updateStatus = async (id, action) => {
-    await fetch(`${base}/api/admin/books/${action}/${id}`, {
-      method: "PATCH",
-      credentials: "include",
-    });
+    try {
+      const res = await fetch(`${base}/api/admin/books/${action}/${id}`, {
+        method: "PATCH",
+        headers: { "Content-Type": "application/json" },
+        credentials: "include",
+      });
 
-    loadBooks();
+      if (res.ok) {
+        await loadBooks();
+      } else {
+        const errData = await res.json();
+        alert(errData.error || errData.msg || "Failed to update status");
+      }
+    } catch (error) {
+      console.error("Status update error:", error);
+    }
   };
 
   const deleteBook = async (id) => {
     const ok = confirm("Delete this book?");
     if (!ok) return;
 
-    await fetch(`${base}/api/admin/books/${id}`, {
-      method: "DELETE",
-      credentials: "include",
-    });
+    try {
+      const res = await fetch(`${base}/api/admin/books/${id}`, {
+        method: "DELETE",
+        credentials: "include",
+      });
 
-    loadBooks();
+      if (res.ok) {
+        await loadBooks();
+      }
+    } catch (error) {
+      console.error("Delete error:", error);
+    }
   };
 
   if (loading) {
@@ -75,11 +87,11 @@ export default function AdminBooks() {
       {/* HEADER */}
       <div className="bg-white border rounded-2xl shadow-sm p-6 flex justify-between items-center">
         <div>
-          <h1 className="text-3xl text - bg-purple-700 font-bold">Book Management</h1>
+          <h1 className="text-3xl text-purple-700 font-bold">Book Management</h1>
           <p className="text-gray-500">Approve / Reject / Delete books</p>
         </div>
 
-        <BookOpen size={30} />
+        <BookOpen size={30} className="text-purple-700" />
       </div>
 
       {/* TABLE */}
@@ -104,54 +116,63 @@ export default function AdminBooks() {
                 </td>
               </tr>
             ) : (
-              books.map((book) => (
-                <tr key={book._id} className="border-t">
+              books.map((book) => {
+                const status = book.status || "Pending Approval";
+                const isApproved = status === "Approved" || status === "Published";
+                const isPending = status.includes("Pending");
 
-                  <td className="p-4 font-medium">
-                    {book.title}
-                  </td>
+                return (
+                  <tr key={book._id} className="border-t hover:bg-gray-50">
 
-                  <td className="p-4">
-                    <span className={`px-3 py-1 rounded-full text-xs font-bold
-                      ${book.status === "Published"
-                        ? "bg-green-100 text-green-700"
-                        : book.status === "Pending"
-                        ? "bg-yellow-100 text-yellow-700"
-                        : "bg-red-100 text-red-700"
+                    <td className="p-4 font-medium">
+                      {book.title}
+                    </td>
+
+                    <td className="p-4">
+                      <span className={`px-3 py-1 rounded-full text-xs font-bold ${
+                        isApproved
+                          ? "bg-green-100 text-green-700"
+                          : isPending
+                          ? "bg-yellow-100 text-yellow-700"
+                          : "bg-red-100 text-red-700"
                       }`}>
-                      {book.status}
-                    </span>
-                  </td>
+                        {status}
+                      </span>
+                    </td>
 
-                  <td className="p-4">
-                    <div className="flex gap-2 justify-center">
+                    <td className="p-4">
+                      <div className="flex gap-2 justify-center">
 
-                      <button
-                        onClick={() => updateStatus(book._id, "approve")}
-                        className="bg-green-600 text-white px-3 py-1 rounded"
-                      >
-                        <CheckCircle2 size={16} />
-                      </button>
+                        <button
+                          onClick={() => updateStatus(book._id, "approve")}
+                          title="Approve Book"
+                          className="bg-green-600 hover:bg-green-700 text-white p-2 rounded transition"
+                        >
+                          <CheckCircle2 size={16} />
+                        </button>
 
-                      <button
-                        onClick={() => updateStatus(book._id, "reject")}
-                        className="bg-yellow-500 text-white px-3 py-1 rounded"
-                      >
-                        <XCircle size={16} />
-                      </button>
+                        <button
+                          onClick={() => updateStatus(book._id, "reject")}
+                          title="Reject Book"
+                          className="bg-yellow-500 hover:bg-yellow-600 text-white p-2 rounded transition"
+                        >
+                          <XCircle size={16} />
+                        </button>
 
-                      <button
-                        onClick={() => deleteBook(book._id)}
-                        className="bg-red-600 text-white px-3 py-1 rounded"
-                      >
-                        <Trash2 size={16} />
-                      </button>
+                        <button
+                          onClick={() => deleteBook(book._id)}
+                          title="Delete Book"
+                          className="bg-red-600 hover:bg-red-700 text-white p-2 rounded transition"
+                        >
+                          <Trash2 size={16} />
+                        </button>
 
-                    </div>
-                  </td>
+                      </div>
+                    </td>
 
-                </tr>
-              ))
+                  </tr>
+                );
+              })
             )}
 
           </tbody>

@@ -11,15 +11,13 @@ import {
   Label,
   TextField,
 } from "@heroui/react";
-import { authClient, useSession } from "../lib/auth-client";
+import { authClient } from "../lib/auth-client";
 import { FcGoogle } from "react-icons/fc";
 import Link from "next/link";
-import { toast } from "react-toastify"; // 
+import { toast } from "react-toastify";
 
 export default function SignInPage() {
   const [errorMessage, setErrorMessage] = useState("");
-  const { data: session } = useSession();
-  const user = session?.user;
 
   const onSubmit = async (e) => {
     e.preventDefault();
@@ -29,12 +27,12 @@ export default function SignInPage() {
     
     const formData = new FormData(e.currentTarget);
     const userFormData = Object.fromEntries(formData.entries());
-    
+    const selectedRole = userFormData.role?.toLowerCase();
+
     await authClient.signIn.email({
       email: userFormData.email,
       password: userFormData.password,
-      role: userFormData.role.toLowerCase(),
-      callbackURL: "/",
+      // callbackURL সরিয়ে হ্যান্ডলারের ভেতরে ডাইনামিক রিডাইরেক্ট করা হচ্ছে
       fetchOptions: {
         onError: (ctx) => {
           const msg = ctx.error.message || "Invalid email or password";
@@ -47,17 +45,27 @@ export default function SignInPage() {
             autoClose: 3000 
           });
         },
-        onSuccess: () => {
+        onSuccess: (ctx) => {
+          // DB থেকে আসা আসল Role রিড করা হচ্ছে
+          const userRole = ctx.data?.user?.role?.toLowerCase() || selectedRole || "user";
+
           toast.update(id, { 
             render: "Welcome back! Redirecting... 🎉", 
             type: "success", 
             isLoading: false, 
-            autoClose: 2000 
+            autoClose: 1500 
           });
           
+          // 🔥 Role অনুযায়ী সঠিক ড্যাশবোর্ডে Hard Redirect
           setTimeout(() => {
-            window.location.href = "/";
-          }, 1500);
+            if (userRole === "admin") {
+              window.location.href = "/dashboard/admin";
+            } else if (userRole === "librarian") {
+              window.location.href = "/dashboard/librarian";
+            } else {
+              window.location.href = "/dashboard/user";
+            }
+          }, 1000);
         }
       }
     });
@@ -68,7 +76,7 @@ export default function SignInPage() {
     try {
       await authClient.signIn.social({
         provider: "google",
-        callbackURL: "/", 
+        callbackURL: "/dashboard/user", // ডিফল্ট রিডাইরেক্ট
       });
     } catch (error) {
       console.error("Google Sign-In Error:", error);
@@ -108,17 +116,18 @@ export default function SignInPage() {
           <FieldError />
         </TextField>
 
+        {/* Role Select - Admin অপশন যুক্ত করা হলো */}
         <div className="flex flex-col gap-1.5">
           <Label className="text-sm font-medium">Signin As</Label>
           <select
             required
             name="role"
-            defaultValue={user?.role || "user"} 
+            defaultValue="user" 
             className="w-full bg-zinc-100 hover:bg-zinc-200 focus:bg-zinc-100 border border-zinc-200 focus:border-zinc-500 rounded-lg p-2.5 text-sm outline-none transition-all cursor-pointer"
           >
-            <option value="" disabled hidden>Choose a role</option>
-            <option value="librarian">Librarian</option>
             <option value="user">User</option>
+            <option value="librarian">Librarian</option>
+            <option value="admin">Admin</option>
           </select>
         </div>
 
@@ -127,24 +136,9 @@ export default function SignInPage() {
           minLength={8}
           name="password"
           type="password"
-          validate={(value) => {
-            if (value.length < 8) {
-              return "Password must be at least 8 characters";
-            }
-            if (!/[A-Z]/.test(value)) {
-              return "Password must contain at least one uppercase letter";
-            }
-            if (!/[0-9]/.test(value)) {
-              return "Password must contain at least one number";
-            }
-            return null;
-          }}
         >
           <Label>Password</Label>
           <Input placeholder="Enter your password" />
-          <Description>
-            Must be at least 8 characters with 1 uppercase and 1 number
-          </Description>
           <FieldError />
         </TextField>
 

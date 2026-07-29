@@ -1,4 +1,3 @@
-
 import { DeleteAlert } from "@/app/component/DeleteAlert";
 import { BuyNowButton } from "@/app/component/BuyNowButton"; 
 import { getBooksById } from "@/app/lib/api/books";
@@ -12,7 +11,7 @@ import { EditModal } from "@/app/component/EditModal";
 const BookDetailsPage = async ({ params }) => {
   const { id } = await params;
   const book = await getBooksById(id);
-console.log("Current ID from params:", id);
+  console.log("Current ID from params:", id);
 
   const session = await auth.api.getSession({
     headers: await headers(),
@@ -27,16 +26,6 @@ console.log("Current ID from params:", id);
 
   const isOwner = bookOwnerId && loggedInUserId && bookOwnerId === loggedInUserId;
   const canModify = userRole === "admin" || (userRole === "librarian" && isOwner);
-  const isUnavailable =
-  book?.availability === "Unavailable" ||
-  book?.status !== "Published";
-
-const isOwnBook =
-  loggedInUserId &&
-  bookOwnerId &&
-  loggedInUserId === bookOwnerId;
-
-const disableRequest = isUnavailable || isOwnBook;
 
   if (!book) {
     return (
@@ -61,13 +50,13 @@ const disableRequest = isUnavailable || isOwnBook;
         ) : (
           userRole === "librarian" && (
            <div className="bg-purple-50 border-b border-purple-100 text-purple-700 px-6 py-3.5 text-xs sm:text-sm flex flex-col sm:flex-row items-start sm:items-center gap-2 font-medium w-full">
-  <div className="flex items-center gap-2 shrink-0">
-    💡 <span className="font-bold text-purple-900 whitespace-nowrap">Note for Examiner:</span> 
-  </div>
-  <p className="text-gray-700 leading-relaxed">
-    You are logged in as a <strong>Librarian</strong>. Since you didn't upload this specific book, the Edit/Delete actions are hidden for ownership-based security.
-  </p>
-</div>
+              <div className="flex items-center gap-2 shrink-0">
+                💡 <span className="font-bold text-purple-900 whitespace-nowrap">Note for Examiner:</span> 
+              </div>
+              <p className="text-gray-700 leading-relaxed">
+                You are logged in as a <strong>Librarian</strong>. Since you didnt upload this specific book, the Edit/Delete actions are hidden for ownership-based security.
+              </p>
+            </div>
           )
         )}
 
@@ -82,7 +71,6 @@ const disableRequest = isUnavailable || isOwnBook;
               className="object-contain p-4 group-hover:scale-102 transition-transform duration-300"
               sizes="(max-width: 768px) 100vw, 50vw"
               suppressHydrationWarning
-
             />
           </div>
 
@@ -110,18 +98,15 @@ const disableRequest = isUnavailable || isOwnBook;
               </div>
 
               <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 pt-2">
+                {/* এখানে disabled প্রপসটি বাদ দেওয়া হয়েছে যাতে বাটন সচল থাকে */}
                 <BuyNowButton
-                 book={book}
-                 session={session}
-                   disabled={disableRequest}
-                            />
+                  book={book}
+                  session={session}
+                />
                 <Button 
-                variant="bordered" className="w-full font-bold py-6 rounded-xl">
+                  variant="bordered" className="w-full font-bold py-6 rounded-xl">
                   Add to Borrow List
                 </Button>
-                <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 pt-2">
-               </div>
-
               </div>
             </div>
           </div>

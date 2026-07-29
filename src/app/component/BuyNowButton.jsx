@@ -29,9 +29,7 @@ export function BuyNowButton({ book, disabled = false }) {
     loggedInUserId &&
     bookOwnerId === loggedInUserId;
 
-  const isUnavailable =
-    book?.availability === "Unavailable" ||
-    book?.status !== "Published";
+  const isUnavailable = !book?.quantity || book.quantity <= 0;
 
   const isDisabled =
     disabled ||
@@ -54,9 +52,7 @@ export function BuyNowButton({ book, disabled = false }) {
     try {
       const res = await requestDelivery(book._id);
 
-      if (res.success) {
-        toast.success(res.message);
-      } else {
+      if (res && res.success === false) {
         toast.error(res.message || "Request failed.");
       }
     } catch (error) {
@@ -89,12 +85,12 @@ export function BuyNowButton({ book, disabled = false }) {
         className="w-full bg-purple-600 text-white font-bold py-6 rounded-xl"
       >
         {loading
-          ? "Requesting..."
+          ? "Processing..."
           : isOwner
           ? "Your Own Book"
           : isUnavailable
           ? "Unavailable"
-          : "Request Delivery"}
+          : "Buy Now"}
       </Button>
     </form>
   );

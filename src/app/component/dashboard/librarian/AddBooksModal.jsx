@@ -1,11 +1,14 @@
 "use client";
+
 import React, { useState } from "react";
-import { Button, Input, Label, Modal, Surface, TextField } from "@heroui/react";
+import { useRouter } from "next/navigation";
+import { Button, Input, Label, Modal, TextField } from "@heroui/react";
 import { imageUpload } from "@/app/lib/imgUpload";
 import { addBooks } from "@/app/lib/action/books";
 import { toast } from "react-toastify";
 
 export default function AddBooksModal() {
+  const router = useRouter();
   const [loading, setLoading] = useState(false);
   const [isOpen, setIsOpen] = useState(false);
 
@@ -16,33 +19,48 @@ export default function AddBooksModal() {
 
     try {
       const formData = new FormData(e.target);
-      const file = formData.get("image"); 
-      
-      
+      const file = formData.get("image");
+
+      // Image Upload
       const image = await imageUpload(file);
       if (!image?.url) throw new Error("Image upload failed.");
 
       const rawData = Object.fromEntries(formData.entries());
+
       const bookData = {
         title: rawData.title,
         description: rawData.description,
         price: Number(rawData.price),
         quantity: Number(rawData.quantity),
         image: image.url,
-        status: "pending" 
+        status: "Approved", // Capitalized formatting for query matching
       };
 
       const result = await addBooks(bookData);
 
-      if (result) {
-        toast.update(toastId, { render: "Book added successfully! 🎉", type: "success", isLoading: false, autoClose: 3000 });
+      if (result?.success || result?.insertedId) {
+        toast.update(toastId, {
+          render: "Book added successfully! 🎉",
+          type: "success",
+          isLoading: false,
+          autoClose: 3000,
+        });
+
         e.target.reset();
         setIsOpen(false);
+
+        // Instant refresh without full page reload
+        router.refresh();
       } else {
-        throw new Error("Failed to save book.");
+        throw new Error(result?.error || "Failed to save book.");
       }
     } catch (error) {
-      toast.update(toastId, { render: error.message, type: "error", isLoading: false, autoClose: 3000 });
+      toast.update(toastId, {
+        render: error.message || "Something went wrong",
+        type: "error",
+        isLoading: false,
+        autoClose: 3000,
+      });
     } finally {
       setLoading(false);
     }
@@ -50,7 +68,10 @@ export default function AddBooksModal() {
 
   return (
     <>
-      <Button onClick={() => setIsOpen(true)} className="bg-purple-700 text-white hover:bg-purple-800 cursor-pointer">
+      <Button
+        onClick={() => setIsOpen(true)}
+        className="bg-purple-700 text-white hover:bg-purple-800 cursor-pointer"
+      >
         Add New Book
       </Button>
 
@@ -59,22 +80,57 @@ export default function AddBooksModal() {
           <Modal.Container placement="auto">
             <Modal.Dialog className="sm:max-w-md bg-white rounded-2xl shadow-xl border border-slate-100 p-6">
               <Modal.Header>
-                <Modal.Heading className="text-xl font-bold"> Add a New Book</Modal.Heading>
+                <Modal.Heading className="text-xl font-bold">
+                  Add a New Book
+                </Modal.Heading>
               </Modal.Header>
-              
+
               <Modal.Body className="py-4">
-                <form id="add-book-form" onSubmit={onSubmit} className="flex flex-col gap-4">
-                  <TextField name="title" aria-label="Book Title" required><Input placeholder="e.g., The Great Gatsby" /></TextField>
-                  <TextField name="description" aria-label="Description" required><Input placeholder="Brief summary" /></TextField>
-                  <TextField name="price" aria-label="Price" aria-activedescendantlabel="Price ($)" type="number" required><Input placeholder="12.99" /></TextField>
-                  <TextField name="quantity" aria-label="Quantity" type="number" required><Input placeholder="10" /></TextField>
-                  
-                  <Label className="text-sm font-semibold text-slate-700">Book Image</Label>
-                  <input name="image" type="file" accept="image/*" className="w-full text-sm p-2 border rounded-full" required />
-                  
+                <form
+                  id="add-book-form"
+                  onSubmit={onSubmit}
+                  className="flex flex-col gap-4"
+                >
+                  <TextField name="title" aria-label="Book Title" required>
+                    <Input placeholder="e.g., The Great Gatsby" />
+                  </TextField>
+
+                  <TextField name="description" aria-label="Description" required>
+                    <Input placeholder="Brief summary" />
+                  </TextField>
+
+                  <TextField name="price" aria-label="Price" type="number" required>
+                    <Input placeholder="12.99" />
+                  </TextField>
+
+                  <TextField name="quantity" aria-label="Quantity" type="number" required>
+                    <Input placeholder="10" />
+                  </TextField>
+
+                  <Label className="text-sm font-semibold text-slate-700">
+                    Book Image
+                  </Label>
+                  <input
+                    name="image"
+                    type="file"
+                    accept="image/*"
+                    className="w-full text-sm p-2 border rounded-full"
+                    required
+                  />
+
                   <div className="flex justify-end gap-2 pt-4">
-                    <Button type="button" onClick={() => setIsOpen(false)}>Cancel</Button>
-                    <Button type="submit" disabled={loading} className="bg-purple-700 text-white">
+                    <Button
+                      type="button"
+                      onClick={() => setIsOpen(false)}
+                      variant="flat"
+                    >
+                      Cancel
+                    </Button>
+                    <Button
+                      type="submit"
+                      disabled={loading}
+                      className="bg-purple-700 text-white"
+                    >
                       {loading ? "Adding..." : "Add Book"}
                     </Button>
                   </div>

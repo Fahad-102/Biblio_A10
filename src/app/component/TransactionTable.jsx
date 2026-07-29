@@ -65,9 +65,9 @@ export default function TransactionTable({ role }) {
             </thead>
             <tbody className="divide-y divide-slate-100 text-sm text-slate-700">
               {txns.length > 0 ? (
-                txns.map((txn) => (
-                  <tr key={txn._id} className="hover:bg-slate-50/50 transition-colors">
-                    <td className="p-4 pl-6 font-mono text-xs font-semibold text-indigo-600">{txn.id}</td>
+                txns.map((txn, index) => (
+                  <tr key={txn._id || txn.id || index} className="hover:bg-slate-50/50 transition-colors">
+                    <td className="p-4 pl-6 font-mono text-xs font-semibold text-indigo-600">{txn.id || txn._id}</td>
                     <td className="p-4 font-medium text-slate-700">{txn.userEmail || "N/A"}</td>
                     <td className="p-4">
                       <div className="flex items-center gap-2">
@@ -80,7 +80,9 @@ export default function TransactionTable({ role }) {
                       </div>
                     </td>
                     <td className="p-4 font-bold text-slate-900">${txn.amount}</td>
-                    <td className="p-4 text-slate-500 text-xs">{new Date(txn.createdAt).toLocaleDateString()}</td>
+                    <td className="p-4 text-slate-500 text-xs">
+                      {txn.createdAt ? new Date(txn.createdAt).toLocaleDateString() : "N/A"}
+                    </td>
                     <td className="p-4 text-center">
                       <span className={`px-2.5 py-1 rounded-md text-xs font-bold border ${
                         txn.status === 'Success' ? 'bg-emerald-50 text-emerald-600 border-emerald-100' : 'bg-red-50 text-red-600 border-red-100'

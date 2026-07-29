@@ -34,11 +34,17 @@ export default function Navbar() {
 
   const isActive = (path) => pathname === path;
 
+  // 🔥 Role অনুযায়ী সঠিক Dashboard Path জেনারেট করা
   const getDashboardLink = () => {
-    if (!user?.role) return "/dashboard/user";
-    if (user.role === "user_pro") return "/dashboard/user";
-    return `/dashboard/${user.role}`;
+    const role = user?.role?.toLowerCase();
+    if (!role || role === "user_pro" || role === "user") return "/dashboard/user";
+    if (role === "admin") return "/dashboard/admin";
+    if (role === "librarian") return "/dashboard/librarian";
+    return `/dashboard/${role}`;
   };
+
+  // 🏷️ Display Role Badge - সুন্দর ক্যাপস ফরম্যাটে দেখানোর জন্য
+  const displayRole = user?.role ? user.role.toUpperCase() : "USER";
 
   return (
     <nav className="w-full bg-background/70 backdrop-blur-md border-b border-divider sticky top-0 z-50 px-6 py-3">
@@ -128,8 +134,10 @@ export default function Navbar() {
                     <div className="px-4 py-2 border-b border-slate-100">
                       <p className="text-xs text-slate-400 font-medium">Signed in as</p>
                       <p className="text-sm font-bold text-indigo-600 truncate">{user?.email}</p>
+                      
+                      {/* 🔥 ডাইনামিক রোল ব্যাজ (ADMIN / LIBRARIAN / USER) */}
                       <span className="inline-block mt-1 text-[10px] uppercase font-bold tracking-wider bg-indigo-50 text-indigo-600 px-2 py-0.5 rounded-full">
-                        {user?.role}
+                        {displayRole}
                       </span>
                     </div>
 
