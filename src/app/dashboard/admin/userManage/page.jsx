@@ -15,36 +15,60 @@ export default function UsersPage() {
     })
       .then((res) => res.json())
       .then((data) => {
-        setUsers(data);
+        // ডেটা অ্যারে কি না তা নিশ্চিত করা, না হলে খালি অ্যারে সেট করা
+        if (Array.isArray(data)) {
+          setUsers(data);
+        } else if (data && Array.isArray(data.users)) {
+          setUsers(data.users);
+        } else {
+          setUsers([]);
+        }
+        setLoading(false);
+      })
+      .catch((err) => {
+        console.error("Error fetching users:", err);
+        setUsers([]);
         setLoading(false);
       });
-  }, []);
+  }, [base]);
 
   const updateRole = async (id, role) => {
-    await fetch(`${base}/api/admin/users/${id}`, {
-      method: "PATCH",
-      headers: {
-        "Content-Type": "application/json",
-      },
-      credentials: "include",
-      body: JSON.stringify({ role }),
-    });
+    try {
+      const res = await fetch(`${base}/api/admin/users/${id}`, {
+        method: "PATCH",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        credentials: "include",
+        body: JSON.stringify({ role }),
+      });
 
-    setUsers((prev) =>
-      prev.map((u) => (u._id === id ? { ...u, role } : u))
-    );
+      if (res.ok) {
+        setUsers((prev) =>
+          prev.map((u) => (u._id === id ? { ...u, role } : u))
+        );
+      }
+    } catch (err) {
+      console.error("Error updating role:", err);
+    }
   };
 
   const deleteUser = async (id) => {
     const ok = confirm("Delete this user?");
     if (!ok) return;
 
-    await fetch(`${base}/api/admin/users/${id}`, {
-      method: "DELETE",
-      credentials: "include",
-    });
+    try {
+      const res = await fetch(`${base}/api/admin/users/${id}`, {
+        method: "DELETE",
+        credentials: "include",
+      });
 
-    setUsers((prev) => prev.filter((u) => u._id !== id));
+      if (res.ok) {
+        setUsers((prev) => prev.filter((u) => u._id !== id));
+      }
+    } catch (err) {
+      console.error("Error deleting user:", err);
+    }
   };
 
   if (loading) {
@@ -84,7 +108,7 @@ export default function UsersPage() {
             </thead>
 
             <tbody>
-              {users.length === 0 ? (
+              {!Array.isArray(users) || users.length === 0 ? (
                 <tr>
                   <td colSpan="3" className="text-center py-10 text-gray-500">
                     No users found.
@@ -135,7 +159,7 @@ export default function UsersPage() {
                             onClick={() => updateRole(user._id, "librarian")}
                             className="flex items-center gap-2 px-3 py-2 rounded-lg border border-gray-400 text-gray-700 hover:bg-gray-100 transition"
                           >
-                            <BookUser size={16} />
+                            <BookUser size/16 />
                             Librarian
                           </button>
                         )}
