@@ -10,7 +10,7 @@ export default async function Success({ searchParams }) {
     return redirect('/browse-books')
   }
 
-  let session
+  let session 
   try {
     session = await stripe.checkout.sessions.retrieve(session_id, {
       expand: ['line_items', 'payment_intent']
