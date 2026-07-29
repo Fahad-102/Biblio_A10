@@ -159,7 +159,7 @@ export default function UsersPage() {
                             onClick={() => updateRole(user._id, "librarian")}
                             className="flex items-center gap-2 px-3 py-2 rounded-lg border border-gray-400 text-gray-700 hover:bg-gray-100 transition"
                           >
-                            <BookUser size/16 />
+                            <BookUser size={16} />
                             Librarian
                           </button>
                         )}
