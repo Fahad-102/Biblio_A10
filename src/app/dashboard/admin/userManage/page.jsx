@@ -15,7 +15,6 @@ export default function UsersPage() {
     })
       .then((res) => res.json())
       .then((data) => {
-        // ডেটা অ্যারে কি না তা নিশ্চিত করা, না হলে খালি অ্যারে সেট করা
         if (Array.isArray(data)) {
           setUsers(data);
         } else if (data && Array.isArray(data.users)) {
