@@ -31,7 +31,7 @@ export default function AdminDashboard() {
 
   async function fetchData() {
     try {
-      const res = await fetch(`${base}/api/admin/overview`, {
+      const res = await fetch(`${base}/api/admin/chart`, {
         method: "GET",
         headers: {
           "Content-Type": "application/json",

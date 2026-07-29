@@ -23,7 +23,7 @@ export default function AdminChart() {
         setSession(sessionData);
         
         // ২. সেশন পাওয়ার পর অ্যাডমিন ওভারভিউ বা চার্টের ডেটা ফেচ করা
-        return fetch(`${base}/api/admin/overview`, {
+        return fetch(`${base}/api/admin/chart`, {
           method: "GET",
           headers: { "Content-Type": "application/json" },
           credentials: "include",
