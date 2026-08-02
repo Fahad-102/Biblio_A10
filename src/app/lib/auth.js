@@ -11,7 +11,7 @@ if (!uri) throw new Error("Missing MONGODB_URI in environment variables");
 const client = new MongoClient(uri);
 const db = client.db(dbName);
 
-const auth = betterAuth({
+export const auth = betterAuth({
   baseURL: process.env.BETTER_AUTH_URL || "http://localhost:3000",
   secret: process.env.BETTER_AUTH_SECRET,
 
@@ -33,14 +33,13 @@ const auth = betterAuth({
     },
   },
 
-  // 🔥 1. Additional Fields Config + Field Mapping Fix
   user: {
     additionalFields: {
       role: {
         type: "string",
         required: false,
         defaultValue: "user",
-        input: true, // Registration এর সময় input নিতে সাহায্য করবে
+        input: true,
       },
       plan: {
         type: "string",
@@ -50,7 +49,6 @@ const auth = betterAuth({
     },
   },
 
-  // 🔥 2. Session Payload এ role ফিল্ডটি বাধ্যতামূলকভাবে নিয়ে আসার জন্য
   session: {
     expiresIn: 60 * 60 * 24 * 7, // 7 days
     updateAge: 60 * 60 * 24, // 1 day
@@ -65,7 +63,7 @@ const auth = betterAuth({
 
   advanced: {
     defaultCookieAttributes: {
-      sameSite: "none",         secure: true,        
+      sameSite: "none",        secure: true,        
       partitioned: true,   
     },
   },
@@ -73,7 +71,6 @@ const auth = betterAuth({
   plugins: [
     jwt({
       jwt: {
-       
         definePayload: (user) => ({
           id: user.id,
           email: user.email,
@@ -83,5 +80,3 @@ const auth = betterAuth({
     }),
   ],
 });
-
-module.exports = { auth };

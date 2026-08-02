@@ -1,12 +1,12 @@
 import { NextResponse } from 'next/server';
 import { headers } from 'next/headers';
 import { stripe, PRICE_ID } from '@/app/lib/stripe'; 
-import { auth } from '../../auth';
+import { auth } from '@/app/lib/auth'; // সঠিক পাথ (অ্যালিয়াস ব্যবহার করা হয়েছে)
 
 export async function POST(req) { 
   try {
     const formData = await req.formData();
-    // ফ্রন্টএন্ড থেকে planId আসুক কিংবা planKey, উভয়কেই রিসিভ করার জন্য:
+    // ফ্রন্টএন্ড থেকে planId আসুক কিংবা planKey, উভয়কেই রিসিভ করার জন্য:
     const planKey = formData.get("planId") || formData.get("planKey"); 
 
     if (!planKey) {
@@ -16,7 +16,7 @@ export async function POST(req) {
       );
     }
 
-    // সঠিক प्राइस আইডি বের করা (যেমন: user_pro, user_elite ইত্যাদি)
+    // সঠিক প্রাইস আইডি বের করা (যেমন: user_pro, user_elite ইত্যাদি)
     const priceId = PRICE_ID[planKey];
 
     if (!priceId) {
