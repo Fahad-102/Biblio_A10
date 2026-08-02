@@ -1,9 +1,8 @@
 "use client";
-import { apiFetch } from "@/app/lib/api";
 import { Trash2, EyeOff } from "lucide-react";
 
 export default function BookTable({ books, onRefresh }) {
-  const handleUnpublish = async (id) => { try { await apiFetch(`/api/librarian/books/unpublish/${id}`, { method: "PATCH" }); onRefresh(); } catch { alert("Failed to unpublish"); } };
+  const handleUnpublish = async (id) => { try { await apiFetc(`/api/librarian/books/unpublish/${id}`, { method: "PATCH" }); onRefresh(); } catch { alert("Failed to unpublish"); } };
   const handleDelete = async (id) => { if (!confirm("Delete this book?")) return; try { await apiFetch(`/api/librarian/books/${id}`, { method: "DELETE" }); onRefresh(); } catch { alert("Failed to delete"); } };
 
   return (

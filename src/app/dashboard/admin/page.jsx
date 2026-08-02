@@ -1,122 +1,98 @@
 "use client";
 import { useEffect, useState } from "react";
-import {
-  BarChart,
-  Bar,
-  XAxis,
-  YAxis,
-  Tooltip,
-  ResponsiveContainer,
-  CartesianGrid,
-  PieChart,
-  Pie,
-  Cell,
-  Legend,
-} from "recharts";
-import { Loader2 } from "lucide-react";
-import { useSession } from "@/app/lib/auth-client";
+import { Users, BookOpen, Clock3, DollarSign, ArrowUpRight } from "lucide-react";
+import { apiFetch } from "@/app/lib/api";
 
-const COLORS = ["#7c3aed", "#f59e0b", "#10b981", "#ef4444", "#3b82f6", "#ec4899"];
-
-export default function AdminChartPage() {
-  const { data: session, isPending } = useSession();
-  const [stats, setStats] = useState(null);
+export default function AdminDashboard() {
+  const [stats, setStats] = useState({ totalUsers: 0, totalBooks: 0, pendingBooks: 0, totalRevenue: 0 });
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
 
   useEffect(() => {
-    // ফেচ করার সময় সঠিক রিকোয়েটিংস অপশন বা হেডারস স্বয়ংক্রিয়ভাবে কুকি পাস করবে
-    fetch("/api/admin/chart", {
-      credentials: "include"
-    })
-      .then(async (res) => {
-        if (!res.ok) {
-          throw { status: res.status };
-        }
-        return res.json();
-      })
-      .then((data) => {
-        setStats(data);
+    async function fetchData() {
+      try {
+        const data = await apiFetch("/api/admin/chart");
+        setStats({
+          totalUsers: data?.totalUsers || 0,
+          totalBooks: data?.totalBooks || 0,
+          pendingBooks: data?.pendingBooks || 0,
+          totalRevenue: data?.totalRevenue || 0,
+        });
+      } catch (err) {
+        console.error("Admin Overview Fetch Error:", err);
+        setError(err.status === 401 ? "Unauthorized. Please log in again." : "Failed to load dashboard data.");
+      } finally {
         setLoading(false);
-      })
-      .catch((err) => {
-        setError(
-          err.status === 401
-            ? "Unauthorized. Please log in as admin."
-            : "Failed to load chart data."
-        );
-        setLoading(false);
-      });
+      }
+    }
+
+    fetchData();
   }, []);
 
-  if (isPending || loading)
-    return (
-      <div className="flex justify-center items-center h-80">
-        <Loader2 className="animate-spin text-purple-600" size={32} />
-      </div>
-    );
+  if (loading) return <div className="flex h-[70vh] justify-center items-center"><div className="h-10 w-10 animate-spin rounded-full border-4 border-purple-600 border-t-transparent"></div></div>;
+  if (error) return <div className="flex h-[70vh] justify-center items-center"><p className="text-red-500 font-medium">{error}</p></div>;
 
-  if (error)
-    return <div className="p-8 text-center text-red-500 font-medium">{error}</div>;
-
-  if (!stats)
-    return <div className="p-8 text-center text-slate-500 font-medium">No data available.</div>;
-
-  const categoryData = stats.categoryStats || [];
+  const cards = [
+    { title: "Users", value: stats.totalUsers, icon: Users, color: "from-purple-700 to-violet-500" },
+    { title: "Books", value: stats.totalBooks, icon: BookOpen, color: "from-slate-900 to-slate-800" },
+    { title: "Pending", value: stats.pendingBooks, icon: Clock3, color: "from-red-600 to-rose-500" },
+    { title: "Revenue", value: `৳${stats.totalRevenue}`, icon: DollarSign, color: "from-purple-950 to-slate-900" },
+  ];
 
   return (
-    <div className="space-y-6 p-2 md:p-6 max-w-7xl mx-auto">
-      <div className="flex flex-col gap-1">
-        <h1 className="text-3xl font-black text-slate-800 tracking-tight">
-          Admin Analytics & Charts
-        </h1>
-        <p className="text-sm text-slate-500">
-          Visual breakdown of books distribution across categories.
-        </p>
+    <div className="space-y-8 max-w-7xl mx-auto p-2 md:p-6">
+      <div className="rounded-3xl bg-gradient-to-r from-purple-900 via-purple-700 to-slate-950 text-white p-8 shadow-xl">
+        <h1 className="text-4xl font-black tracking-tight">Admin Dashboard</h1>
+        <p className="opacity-80 mt-2 text-sm md:text-base">Manage the entire library ecosystem from one central panel.</p>
       </div>
 
-      <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-        <div className="bg-white p-6 rounded-3xl shadow-lg border border-slate-100">
-          <h3 className="text-xl font-bold mb-4 text-slate-700">Books by Category</h3>
-          <div className="h-80 w-full">
-            <ResponsiveContainer width="100%" height="100%">
-              <BarChart data={categoryData} margin={{ top: 10, right: 20, left: -10, bottom: 5 }}>
-                <CartesianGrid strokeDasharray="3 3" stroke="#f1f5f9" />
-                <XAxis dataKey="_id" tick={{ fill: "#64748b", fontSize: 12 }} />
-                <YAxis allowDecimals={false} tick={{ fill: "#64748b", fontSize: 12 }} />
-                <Tooltip />
-                <Bar dataKey="count" fill="#7c3aed" radius={[8, 8, 0, 0]} />
-              </BarChart>
-            </ResponsiveContainer>
+      <div className="grid md:grid-cols-2 xl:grid-cols-4 gap-6">
+        {cards.map((card) => {
+          const Icon = card.icon;
+          return (
+            <div key={card.title} className={`bg-gradient-to-br ${card.color} rounded-3xl p-6 text-white shadow-xl hover:scale-[1.02] transition-transform duration-300`}>
+              <div className="flex justify-between items-start">
+                <div>
+                  <p className="text-sm opacity-80 font-medium">{card.title}</p>
+                  <h2 className="text-4xl font-black mt-4">{card.value}</h2>
+                </div>
+                <div className="bg-white/20 h-14 w-14 rounded-2xl flex justify-center items-center backdrop-blur-sm">
+                  <Icon size={28} />
+                </div>
+              </div>
+              <div className="mt-8 flex items-center text-sm opacity-80">
+                <ArrowUpRight size={16} />
+                <span className="ml-2">Live Statistics</span>
+              </div>
+            </div>
+          );
+        })}
+      </div>
+
+      <div className="grid lg:grid-cols-2 gap-6">
+        <div className="bg-white rounded-3xl p-8 shadow-lg border border-slate-100">
+          <h2 className="font-bold text-2xl mb-6 text-slate-800">Library Summary</h2>
+          <div className="space-y-5">
+            <Summary title="Total Users" value={stats.totalUsers} />
+            <Summary title="Books" value={stats.totalBooks} />
+            <Summary title="Pending Approval" value={stats.pendingBooks} color="text-red-600" />
+            <Summary title="Revenue" value={`৳${stats.totalRevenue}`} color="text-purple-700" />
           </div>
         </div>
-
-        <div className="bg-white p-6 rounded-3xl shadow-lg border border-slate-100">
-          <h3 className="text-xl font-bold mb-4 text-slate-700">Category Distribution</h3>
-          <div className="h-80 w-full">
-            <ResponsiveContainer width="100%" height="100%">
-              <PieChart>
-                <Pie
-                  data={categoryData}
-                  dataKey="count"
-                  nameKey="_id"
-                  cx="50%"
-                  cy="50%"
-                  outerRadius={90}
-                  innerRadius={45}
-                  label
-                >
-                  {categoryData.map((entry, index) => (
-                    <Cell key={`cell-${index}`} fill={COLORS[index % COLORS.length]} />
-                  ))}
-                </Pie>
-                <Tooltip />
-                <Legend verticalAlign="bottom" height={36} />
-              </PieChart>
-            </ResponsiveContainer>
-          </div>
+        <div className="rounded-3xl bg-gradient-to-br from-slate-950 via-purple-950 to-red-700 text-white p-8 shadow-xl flex flex-col justify-center">
+          <h2 className="text-3xl font-black">Welcome Back 👋</h2>
+          <p className="mt-5 opacity-80 leading-8 text-slate-200">Monitor users, books, payments, pending approvals, and overall platform transactions seamlessly.</p>
         </div>
       </div>
+    </div>
+  );
+}
+
+function Summary({ title, value, color = "text-slate-900" }) {
+  return (
+    <div className="flex justify-between border-b border-slate-100 pb-4 items-center">
+      <p className="text-slate-500 font-medium text-sm">{title}</p>
+      <p className={`font-bold ${color}`}>{value}</p>
     </div>
   );
 }
