@@ -1,37 +1,78 @@
-import { cookies } from "next/headers";
+"use client";
+
+import { useEffect, useState, useCallback } from "react";
+import { apiFetch } from "@/lib/api";
+import { Loader2 } from "lucide-react";
 import DeliveriesTable from "./DeliveriesTable";
 
-const baseURI =
-  process.env.NEXT_PUBLIC_SERVER_URL ||
-  "http://localhost:5000";
+export default function LibrarianDeliveriesPage() {
+  const [deliveries, setDeliveries] = useState([]);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState(null);
 
-export default async function DeliveriesPage() {
-  const cookieStore = await cookies();
-
-  const cookieString = cookieStore
-    .getAll()
-    .map(({ name, value }) => `${name}=${value}`)
-    .join("; ");
-
-  const res = await fetch(
-    `${baseURI}/api/librarian/deliveries`,
-    {
-      headers: {
-        Cookie: cookieString,
-      },
-      cache: "no-store",
+  const loadDeliveries = useCallback(async () => {
+    try {
+      const data = await apiFetch("/api/librarian/deliveries");
+      setDeliveries(Array.isArray(data) ? data : data.deliveries || []);
+      setError(null);
+    } catch (err) {
+      setError(
+        err.status === 401
+          ? "Unauthorized. Please log in again."
+          : "Failed to load deliveries."
+      );
+    } finally {
+      setLoading(false);
     }
-  );
+  }, []);
 
-  const deliveries = await res.json();
+  useEffect(() => {
+    let isMounted = true;
+
+    async function fetchData() {
+      setLoading(true);
+      try {
+        const data = await apiFetch("/api/librarian/deliveries");
+        if (isMounted) {
+          setDeliveries(Array.isArray(data) ? data : data.deliveries || []);
+          setError(null);
+        }
+      } catch (err) {
+        if (isMounted) {
+          setError(
+            err.status === 401
+              ? "Unauthorized. Please log in again."
+              : "Failed to load deliveries."
+          );
+        }
+      } finally {
+        if (isMounted) {
+          setLoading(false);
+        }
+      }
+    }
+
+    fetchData();
+
+    return () => {
+      isMounted = false;
+    };
+  }, []);
+
+  if (loading)
+    return (
+      <div className="flex justify-center p-10">
+        <Loader2 className="animate-spin" size={28} />
+      </div>
+    );
+
+  if (error)
+    return <div className="p-8 text-center text-red-500">{error}</div>;
 
   return (
-    <div className="p-6">
-      <h1 className="text-3xl font-bold mb-8">
-        Manage Deliveries
-      </h1>
-
-      <DeliveriesTable deliveries={deliveries} />
+    <div className="p-2 md:p-6 space-y-4">
+      <h1 className="text-2xl font-bold text-slate-800">Manage Deliveries</h1>
+      <DeliveriesTable deliveries={deliveries} onRefresh={loadDeliveries} />
     </div>
   );
 }

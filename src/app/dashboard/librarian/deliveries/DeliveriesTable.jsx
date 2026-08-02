@@ -1,105 +1,35 @@
 "use client";
+import { apiFetch } from "@/lib/api";
 
-import { useRouter } from "next/navigation";
+const statusFlow = { Pending: "Dispatched", Dispatched: "Delivered" };
 
-export default function DeliveriesTable({ deliveries }) {
-  const router = useRouter();
-
-  const updateStatus = async (id, status) => {
-    const res = await fetch(
-      `${process.env.NEXT_PUBLIC_SERVER_URL}/api/librarian/deliveries/${id}`,
-      {
-        method: "PATCH",
-        credentials: "include",
-        headers: {
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify({ status }),
-      }
-    );
-
-    const data = await res.json();
-
-    if (data.success) {
-      alert("Status Updated");
-      router.refresh();
-    } else {
-      alert("Update Failed");
-    }
+export default function DeliveriesTable({ deliveries, onRefresh }) {
+  const handleUpdateStatus = async (id, currentStatus) => {
+    const nextStatus = statusFlow[currentStatus];
+    if (!nextStatus) return;
+    try {
+      await apiFetch(`/api/librarian/deliveries/${id}`, { method: "PATCH", body: JSON.stringify({ status: nextStatus }) });
+      onRefresh();
+    } catch { alert("Failed to update status"); }
   };
 
-  if (!deliveries?.length) {
-    return (
-      <p className="text-center text-gray-500 mt-10">
-        No delivery requests found.
-      </p>
-    );
-  }
-
   return (
-    <div className="overflow-x-auto bg-white rounded-xl shadow">
-      <table className="table">
-        <thead>
-          <tr>
-            <th>#</th>
-            <th>Book</th>
-            <th>User</th>
-            <th>Fee</th>
-            <th>Status</th>
-            <th>Action</th>
-          </tr>
-        </thead>
-
+    <div className="overflow-x-auto bg-white rounded-xl shadow border">
+      <table className="w-full text-sm text-left">
+        <thead className="bg-gray-100"><tr><th className="p-3">Client Email</th><th className="p-3">Book Title</th><th className="p-3">Date</th><th className="p-3">Status</th><th className="p-3 text-center">Actions</th></tr></thead>
         <tbody>
-          {deliveries.map((delivery, index) => (
-            <tr key={delivery._id}>
-              <td>{index + 1}</td>
-
-              <td>{delivery.title}</td>
-
-              <td>{delivery.user?.email}</td>
-
-              <td>৳{delivery.deliveryFee}</td>
-
-              <td>
-                <span className="badge badge-info">
-                  {delivery.status}
-                </span>
-              </td>
-
-              <td>
-                {delivery.status === "Pending" && (
-                  <button
-                    className="btn btn-sm btn-warning"
-                    onClick={() =>
-                      updateStatus(
-                        delivery._id,
-                        "Dispatched"
-                      )
-                    }
-                  >
-                    Dispatch
-                  </button>
-                )}
-
-                {delivery.status === "Dispatched" && (
-                  <button
-                    className="btn btn-sm btn-success"
-                    onClick={() =>
-                      updateStatus(
-                        delivery._id,
-                        "Delivered"
-                      )
-                    }
-                  >
-                    Deliver
-                  </button>
-                )}
-
-                {delivery.status === "Delivered" && (
-                  <span className="text-green-600 font-semibold">
-                    Completed
-                  </span>
+          {(!deliveries || deliveries.length === 0) && <tr><td colSpan={5} className="p-6 text-center text-gray-400">No delivery requests yet</td></tr>}
+          {deliveries?.map((d) => (
+            <tr key={d._id} className="border-t hover:bg-gray-50">
+              <td className="p-3">{d.userEmail}</td>
+              <td className="p-3">{d.title}</td>
+              <td className="p-3">{new Date(d.requestedAt).toLocaleDateString()}</td>
+              <td className="p-3"><span className="px-2 py-1 rounded-full bg-gray-100 text-gray-700 text-xs font-semibold">{d.status}</span></td>
+              <td className="p-3 text-center">
+                {statusFlow[d.status] ? (
+                  <button onClick={() => handleUpdateStatus(d._id, d.status)} className="bg-violet-600 hover:bg-violet-700 text-white px-3 py-1.5 rounded-lg text-xs">Mark as {statusFlow[d.status]}</button>
+                ) : (
+                  <span className="text-gray-400 text-xs">Completed</span>
                 )}
               </td>
             </tr>
