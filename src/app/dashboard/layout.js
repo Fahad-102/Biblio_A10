@@ -1,7 +1,14 @@
+"use client";
+import React from "react";
 import DashboardSidebar from "../component/dashboard/DashboardSidebar";
 import DashboardNavbar from "../component/dashboard/DashboardNavbar";
+import { useSession } from "../lib/auth-client";
+
 
 export default function RootLayout({ children }) {
+  const { data: session, isPending } = useSession();
+  const user = session?.user;
+
   return (
     <div className="flex h-screen bg-background w-full overflow-hidden">
       
@@ -13,9 +20,9 @@ export default function RootLayout({ children }) {
         <div className="flex-1 overflow-y-auto w-full">
           <div className="max-w-7xl mx-auto w-full flex flex-col gap-4">
             
-            {/* Navbar Area */}
+            {/* Navbar Area - সেশন ডেটা প্রপস হিসেবে পাস করা হলো */}
             <div className="w-full bg-white border-b border-zinc-200">
-              <DashboardNavbar />
+              <DashboardNavbar user={user} isPending={isPending} />
             </div>
             
             {/* Page Content */}

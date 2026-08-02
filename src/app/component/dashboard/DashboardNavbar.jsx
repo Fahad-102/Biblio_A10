@@ -44,7 +44,6 @@ export default function DashboardNavbar() {
   return (
     <nav className="w-full h-16 border-b border-divider bg-content1/70 backdrop-blur-md sticky top-0 z-40 px-4 md:px-6 flex items-center justify-between">
       
-      
       <div className="flex items-center gap-2">
         <Link href="/" className="flex items-center gap-2">
           <span className="text-lg font-black tracking-wider bg-linear-to-r from-violet-600 to-indigo-600 bg-clip-text text-transparent md:hidden">
@@ -61,8 +60,7 @@ export default function DashboardNavbar() {
         <h2 className="text-sm font-medium text-default-600">
           Welcome back,{" "}
           <span className="text-indigo-600 font-bold">
-          
-            {mounted && user?.name ? user.name : "Reader"}
+            {isPending || !mounted ? "Loading..." : (user?.name || "Reader")}
           </span>
           ! 👋
         </h2>
@@ -70,7 +68,7 @@ export default function DashboardNavbar() {
 
       <div className="flex items-center gap-3 relative" ref={dropdownRef}>
         <span className="text-xs font-semibold text-default-500 md:hidden max-w-20 truncate">
-          {mounted && user?.name ? user.name.split(" ")[0] : "User"}
+          {isPending || !mounted ? "Loading..." : (user?.name ? user.name.split(" ")[0] : "User")}
         </span>
 
         <button
@@ -92,7 +90,7 @@ export default function DashboardNavbar() {
             <div className="px-4 py-2 border-b border-divider/50 mb-1">
               <p className="font-semibold text-[9px] text-default-400 uppercase tracking-wider">Signed in as</p>
               <p className="font-bold text-xs md:text-sm text-foreground truncate">
-                {mounted ? (user?.name || user?.email || "Guest") : "Loading..."}
+                {isPending || !mounted ? "Loading..." : (user?.name || user?.email || "User")}
               </p>
             </div>
             
