@@ -1,6 +1,7 @@
 import { NextResponse } from 'next/server';
 import { headers } from 'next/headers';
 import { MongoClient } from 'mongodb';
+import { auth } from '@/app/lib/auth'; // আপনার প্রজেক্টের সঠিক পাথ অনুযায়ী নিশ্চিত করবেন
 
 const uri = process.env.MONGODB_URI;
 const dbName = process.env.AUTH_DB_NAME || "biblio-drop_db";
@@ -9,25 +10,22 @@ const client = new MongoClient(uri);
 export async function GET(request) {
   try {
     const headersList = await headers();
-    const authHeader = headersList.get("authorization");
     
-    // ফ্রন্টএন্ড থেকে পাঠানো Bearer টোকেন চেক করা হচ্ছে
-    if (!authHeader || !authHeader.startsWith("Bearer ")) {
+    // BetterAuth দিয়ে সেশন এবং রোল ভেরিফিকেশন
+    const session = await auth.api.getSession({
+      headers: headersList
+    });
+
+    if (!session || session.user?.role !== "admin") {
       return NextResponse.json(
-        { error: "Unauthorized. No token provided." },
+        { error: "Unauthorized. Admin access required." },
         { status: 401 }
       );
     }
 
-    const token = authHeader.split(" ")[1];
-
-    // এখানে আপনার টোকেন ডিকোড বা ভেরিফিকেশন লজিক দিতে পারেন 
-    // (যদি টোকেন ভ্যালিড না হয় তবে 401 রিটার্ন করুন)
-
     await client.connect();
     const db = client.db(dbName);
 
-    // ড্যাশবোর্ডের পরিসংখ্যানের জন্য ডেটা সংগ্রহ
     const totalUsers = await db.collection("user").countDocuments();
     const totalBooks = await db.collection("books").countDocuments();
     const pendingBooks = await db.collection("books").countDocuments({ status: "pending" });
