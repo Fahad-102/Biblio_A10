@@ -1,18 +1,16 @@
-import { auth } from "@/app/lib/auth";
-import { House, Book } from "@gravity-ui/icons";
+"use client";
+import React from "react";
 import Link from "next/link";
+import { House, Book } from "@gravity-ui/icons";
 import { BiMoney as BiMoneyIcon } from "react-icons/bi";
 import { FaChartArea as FaChartAreaIcon } from "react-icons/fa6";
 import { RiUser2Line as RiUser2LineIcon } from "react-icons/ri";
 import { TbAsset as TbAssetIcon } from "react-icons/tb";
-import { headers } from "next/headers";
 import { ClockArrowRotateLeft } from "@gravity-ui/icons";
+import { useSession } from "@/app/lib/auth-client";
 
-export default async function DashboardSidebar() {
-
-  const session = await auth.api.getSession({
-    headers: await headers()
-  });
+export default function DashboardSidebar() {
+  const { data: session } = useSession();
 
   const user = session?.user;
   const role = user?.role?.toLowerCase() || "user";
@@ -24,28 +22,28 @@ export default async function DashboardSidebar() {
       { icon: TbAssetIcon, label: "Books", link: "/dashboard/librarian/books" },
       { icon: BiMoneyIcon, label: "Transaction", link: "/dashboard/librarian/transaction" },
     ],
-   user: [
-  { icon: House, label: "Home", link: "/dashboard/user" },
-  { icon: FaChartAreaIcon, label: "Overview", link: "/dashboard/user/chart" },
-  { icon: Book, label: "Books", link: "/dashboard/user/books" },
-  {
-    icon: ClockArrowRotateLeft,
-    label: "Delivery History",
-    link: "/dashboard/user/delivery-history",
-  },
-  { icon: BiMoneyIcon, label: "Transaction", link: "/dashboard/user/transaction" },
-],
+    user: [
+      { icon: House, label: "Home", link: "/dashboard/user" },
+      { icon: FaChartAreaIcon, label: "Overview", link: "/dashboard/user/chart" },
+      { icon: Book, label: "Books", link: "/dashboard/user/books" },
+      {
+        icon: ClockArrowRotateLeft,
+        label: "Delivery History",
+        link: "/dashboard/user/delivery-history",
+      },
+      { icon: BiMoneyIcon, label: "Transaction", link: "/dashboard/user/transaction" },
+    ],
     user_pro: [
-  { icon: House, label: "Home", link: "/dashboard/user" },
-  { icon: FaChartAreaIcon, label: "Overview", link: "/dashboard/user/chart" },
-  { icon: Book, label: "Books", link: "/dashboard/user/books" },
-  {
-    icon: ClockArrowRotateLeft,
-    label: "Delivery History",
-    link: "/dashboard/user/delivery-history",
-  },
-  { icon: BiMoneyIcon, label: "Transaction", link: "/dashboard/user/transaction" },
-],
+      { icon: House, label: "Home", link: "/dashboard/user" },
+      { icon: FaChartAreaIcon, label: "Overview", link: "/dashboard/user/chart" },
+      { icon: Book, label: "Books", link: "/dashboard/user/books" },
+      {
+        icon: ClockArrowRotateLeft,
+        label: "Delivery History",
+        link: "/dashboard/user/delivery-history",
+      },
+      { icon: BiMoneyIcon, label: "Transaction", link: "/dashboard/user/transaction" },
+    ],
     admin: [
       { icon: House, label: "Home", link: "/dashboard/admin" },
       { icon: RiUser2LineIcon, label: "Users", link: "/dashboard/admin/userManage" },
