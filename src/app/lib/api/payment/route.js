@@ -1,78 +1,48 @@
 import { NextResponse } from 'next/server';
 import { headers } from 'next/headers';
-import { stripe, PRICE_ID } from '@/app/lib/stripe'; 
-import { auth } from '@/app/lib/auth'; // সঠিক পাথ (অ্যালিয়াস ব্যবহার করা হয়েছে)
+import { MongoClient } from 'mongodb';
+import { auth } from '@/app/lib/auth'; 
 
-export async function POST(req) { 
+const uri = process.env.MONGODB_URI;
+const dbName = process.env.AUTH_DB_NAME || "biblio-drop_db";
+const client = new MongoClient(uri);
+
+export async function GET(request) {
   try {
-    const formData = await req.formData();
-    // ফ্রন্টএন্ড থেকে planId আসুক কিংবা planKey, উভয়কেই রিসিভ করার জন্য:
-    const planKey = formData.get("planId") || formData.get("planKey"); 
-
-    if (!planKey) {
-      return NextResponse.json(
-        { error: "Missing required field: planId" },
-        { status: 400 }
-      );
-    }
-
-    // সঠিক প্রাইস আইডি বের করা (যেমন: user_pro, user_elite ইত্যাদি)
-    const priceId = PRICE_ID[planKey];
-
-    if (!priceId) {
-      return NextResponse.json(
-        { error: `Invalid subscription plan selected: ${planKey}` },
-        { status: 400 }
-      );
-    }
-
     const headersList = await headers();
-    const origin = headersList.get('origin');
+    
+    // ১. সেশন এবং অ্যাডমিন রোল চেক
+    const session = await auth.api.getSession({
+      headers: headersList
+    });
 
-    let user = null;
-    try {
-      const userSession = await auth.api.getSession({
-        headers: headersList
-      });
-      user = userSession?.user;
-    } catch (authError) {
-      console.error("Auth session failed:", authError);
-    }
-
-    if (!user) {
+    if (!session || session.user?.role !== "admin") {
       return NextResponse.json(
-        { error: "Please log in to your account first to subscribe." },
+        { error: "Unauthorized. Please log in as admin." },
         { status: 401 }
       );
     }
 
-    // স্ট্রাইপ চেকআউট সেশন তৈরি (সাবস্ক্রিপশন মোড)
-    const session = await stripe.checkout.sessions.create({
-      customer_email: user?.email || undefined,
-      line_items: [
-        {
-          price: priceId,
-          quantity: 1,
-        },
-      ],
-      metadata: {
-        planKey: planKey,
-        priceId: priceId,
-        userId: user?.id || "guest",
-        userEmail: user?.email || "guest@example.com"
-      },
-      mode: 'subscription',
-      success_url: `${origin}/subscription/success?success=true&session_id={CHECKOUT_SESSION_ID}`,
-      cancel_url: `${origin}/subscription?canceled=true`, 
-    });
+    // ২. ডাটাবেজ থেকে ক্যাটাগরি ওয়াইজ ডেটা এগ্রিগেশন
+    await client.connect();
+    const db = client.db(dbName);
+    
+    const categoryStats = await db.collection("books").aggregate([
+      {
+        $group: {
+          _id: "$category",
+          count: { $sum: 1 }
+        }
+      }
+    ]).toArray();
 
-    return NextResponse.json({ url: session.url }, { status: 200 });
+    return NextResponse.json({ categoryStats }, { status: 200 });
 
   } catch (err) {
-    console.error("Stripe Checkout Error:", err);
+    console.error("Admin Chart API Error:", err);
     return NextResponse.json(
       { error: err.message || "Internal Server Error" },
-      { status: err.statusCode || 500 }
+      { status: 500 }
     );
   }
 }
