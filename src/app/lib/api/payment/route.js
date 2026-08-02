@@ -1,7 +1,7 @@
 import { NextResponse } from 'next/server';
 import { headers } from 'next/headers';
 import { MongoClient } from 'mongodb';
-import { auth } from '@/app/lib/auth'; 
+import { auth } from '@/app/lib/auth';
 
 const uri = process.env.MONGODB_URI;
 const dbName = process.env.AUTH_DB_NAME || "biblio-drop_db";
@@ -11,7 +11,6 @@ export async function GET(request) {
   try {
     const headersList = await headers();
     
-    // ১. সেশন এবং অ্যাডমিন রোল চেক
     const session = await auth.api.getSession({
       headers: headersList
     });
@@ -23,7 +22,6 @@ export async function GET(request) {
       );
     }
 
-    // ২. ডাটাবেজ থেকে ক্যাটাগরি ওয়াইজ ডেটা এগ্রিগেশন
     await client.connect();
     const db = client.db(dbName);
     
