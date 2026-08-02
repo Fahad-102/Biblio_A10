@@ -4,7 +4,6 @@ import { Check } from "@gravity-ui/icons";
 import {
   Button,
   Card,
-  Description,
   FieldError,
   Form,
   Input,
@@ -27,12 +26,10 @@ export default function SignInPage() {
     
     const formData = new FormData(e.currentTarget);
     const userFormData = Object.fromEntries(formData.entries());
-    const selectedRole = userFormData.role?.toLowerCase();
 
     await authClient.signIn.email({
       email: userFormData.email,
       password: userFormData.password,
-      // callbackURL সরিয়ে হ্যান্ডলারের ভেতরে ডাইনামিক রিডাইরেক্ট করা হচ্ছে
       fetchOptions: {
         onError: (ctx) => {
           const msg = ctx.error.message || "Invalid email or password";
@@ -46,8 +43,8 @@ export default function SignInPage() {
           });
         },
         onSuccess: (ctx) => {
-          // DB থেকে আসা আসল Role রিড করা হচ্ছে
-          const userRole = ctx.data?.user?.role?.toLowerCase() || selectedRole || "user";
+          // 🔥 ডাটাবেজ থেকে আসল রোল সরাসরি রিড করা হচ্ছে
+          const userRole = ctx.data?.user?.role?.toLowerCase() || "user";
 
           toast.update(id, { 
             render: "Welcome back! Redirecting... 🎉", 
@@ -56,7 +53,7 @@ export default function SignInPage() {
             autoClose: 1500 
           });
           
-          // 🔥 Role অনুযায়ী সঠিক ড্যাশবোর্ডে Hard Redirect
+          // 🔥 ডাটাবেজের রোল অনুযায়ী সঠিক ড্যাশবোর্ডে রিডাইরেক্ট
           setTimeout(() => {
             if (userRole === "admin") {
               window.location.href = "/dashboard/admin";
@@ -76,7 +73,7 @@ export default function SignInPage() {
     try {
       await authClient.signIn.social({
         provider: "google",
-        callbackURL: "/dashboard/user", // ডিফল্ট রিডাইরেক্ট
+        callbackURL: "/dashboard/user",
       });
     } catch (error) {
       console.error("Google Sign-In Error:", error);
@@ -115,21 +112,6 @@ export default function SignInPage() {
           <Input placeholder="john@example.com" />
           <FieldError />
         </TextField>
-
-        {/* Role Select - Admin অপশন যুক্ত করা হলো */}
-        <div className="flex flex-col gap-1.5">
-          <Label className="text-sm font-medium">Signin As</Label>
-          <select
-            required
-            name="role"
-            defaultValue="user" 
-            className="w-full bg-zinc-100 hover:bg-zinc-200 focus:bg-zinc-100 border border-zinc-200 focus:border-zinc-500 rounded-lg p-2.5 text-sm outline-none transition-all cursor-pointer"
-          >
-            <option value="user">User</option>
-            <option value="librarian">Librarian</option>
-            <option value="admin">Admin</option>
-          </select>
-        </div>
 
         <TextField
           isRequired
