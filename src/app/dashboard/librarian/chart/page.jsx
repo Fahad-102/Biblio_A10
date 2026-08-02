@@ -1,7 +1,7 @@
 "use client";
 import { useEffect, useState } from "react";
 import { BarChart, Bar, XAxis, YAxis, Tooltip, ResponsiveContainer, CartesianGrid } from "recharts";
-import { apiFetch } from "@/lib/api";
+import { apiFetch } from "@/app/lib/api";
 import { Loader2 } from "lucide-react";
 
 export default function LibrarianChartPage() {

@@ -1,7 +1,7 @@
 "use client";
 import { useEffect, useState } from "react";
 import { Users, BookOpen, Clock3, DollarSign, ArrowUpRight } from "lucide-react";
-import { apiFetch } from "@/lib/api";
+import { apiFetch } from "@/app/lib/api";
 
 export default function AdminDashboard() {
   const [stats, setStats] = useState({ totalUsers: 0, totalBooks: 0, pendingBooks: 0, totalRevenue: 0 });

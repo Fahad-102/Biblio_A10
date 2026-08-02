@@ -1,5 +1,5 @@
 "use client";
-import { apiFetch } from "@/lib/api";
+import { apiFetch } from "@/app/lib/api";
 import { Trash2, EyeOff } from "lucide-react";
 
 export default function BookTable({ books, onRefresh }) {

@@ -1,7 +1,7 @@
 "use client";
 import { useEffect, useState } from "react";
 import { BarChart, Bar, XAxis, YAxis, Tooltip, ResponsiveContainer, CartesianGrid, PieChart, Pie, Cell, Legend } from "recharts";
-import { apiFetch } from "@/lib/api";
+import { apiFetch } from "@/app/lib/api";
 import { Loader2 } from "lucide-react";
 
 const COLORS = ["#7c3aed", "#f59e0b", "#10b981", "#ef4444", "#3b82f6", "#ec4899"];

@@ -1,58 +1,53 @@
 "use client";
 
-import { useEffect, useState, useCallback } from "react";
-
-const baseURI =
-  process.env.NEXT_PUBLIC_API_URL ||
-  process.env.NEXT_PUBLIC_SERVER_URL ||
-  "http://localhost:5000";
+import { useEffect, useState, useCallback, useRef } from "react";
+import { apiFetch } from "@/app/lib/api";
 
 export default function UserChart() {
   const [data, setData] = useState(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
 
+  const isMounted = useRef(true);
+
   const fetchUserSummary = useCallback(async () => {
-    let isMounted = true;
     try {
       setLoading(true);
       setError(null);
 
-      const res = await fetch(`${baseURI}/api/user/summary`, {
-        method: "GET",
-        headers: {
-          "Content-Type": "application/json",
-        },
-        credentials: "include", // Cross-origin cookies / Better Auth sessions
-        cache: "no-store",
-      });
+      const result = await apiFetch("/api/user/summary");
 
-      // Specific Status Handling
-      if (res.status === 404) {
-        throw new Error("Summary API endpoint not found (404). Check Express backend routes.");
-      }
-
-      if (!res.ok) {
-        throw new Error(`Failed to load summary (Status: ${res.status})`);
-      }
-
-      const contentType = res.headers.get("content-type");
-      if (contentType && contentType.includes("application/json")) {
-        const result = await res.json();
-        if (isMounted) setData(result);
-      } else {
-        throw new Error("Invalid response format from server (Expected JSON).");
+      if (isMounted.current) {
+        setData(result);
       }
     } catch (err) {
       console.error("Error fetching user summary:", err);
-      if (isMounted) setError(err.message || "Failed to load user summary.");
+      if (isMounted.current) {
+        setError(
+          err.status === 404
+            ? "Summary API endpoint not found (404)."
+            : err.message || "Failed to load user summary."
+        );
+      }
     } finally {
-      if (isMounted) setLoading(false);
+      if (isMounted.current) {
+        setLoading(false);
+      }
     }
   }, []);
 
   useEffect(() => {
-    fetchUserSummary();
+    isMounted.current = true;
+    
+    // ফাংশনটিকে সরাসরি কল না করে আলাদাভাবে ডিফাইন করে এক্সিকিউট করা হলো
+    async function loadData() {
+      await fetchUserSummary();
+    }
+    loadData();
+
+    return () => {
+      isMounted.current = false;
+    };
   }, [fetchUserSummary]);
 
   // Skeleton Loading State

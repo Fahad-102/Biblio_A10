@@ -1,7 +1,8 @@
 "use client";
 import { useEffect, useState } from "react";
 import { BookOpen, Clock, CheckCircle, DollarSign, Loader2, AlertTriangle } from "lucide-react";
-import { apiFetch } from "@/lib/api";
+import { apiFetch } from "@/app/lib/api";
+
 
 export default function LibrarianOverviewPage() {
   const [data, setData] = useState(null);

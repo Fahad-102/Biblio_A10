@@ -1,7 +1,7 @@
 "use client";
 import { useEffect, useState } from "react";
 import { Shield, Trash2, Users, BookUser } from "lucide-react";
-import { apiFetch } from "@/lib/api";
+import { apiFetch } from "@/app/lib/api";
 
 export default function UsersPage() {
   const [users, setUsers] = useState([]);

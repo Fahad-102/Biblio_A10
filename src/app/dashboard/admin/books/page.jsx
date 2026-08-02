@@ -1,7 +1,7 @@
 "use client";
 import { useEffect, useState } from "react";
-import { apiFetch } from "@/lib/api";
 import { Loader2, CheckCircle, XCircle, EyeOff, Trash2 } from "lucide-react";
+import { apiFetch } from "@/app/lib/api";
 
 export default function AdminBooksPage() {
   const [books, setBooks] = useState([]);

@@ -1,7 +1,7 @@
 "use client";
 
 import { useEffect, useState, useCallback } from "react";
-import { apiFetch } from "@/lib/api";
+import { apiFetch } from "@/app/lib/api";
 import { Loader2 } from "lucide-react";
 import DeliveriesTable from "./DeliveriesTable";
 

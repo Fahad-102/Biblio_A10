@@ -1,5 +1,5 @@
 "use client";
-import { apiFetch } from "@/lib/api";
+import { apiFetch } from "@/app/lib/api";
 
 const statusFlow = { Pending: "Dispatched", Dispatched: "Delivered" };
 

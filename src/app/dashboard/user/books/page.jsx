@@ -1,8 +1,8 @@
 "use client";
 
-import { useState, useEffect } from "react";
-
-const base = process.env.NEXT_PUBLIC_SERVER_URL || "http://localhost:5000";
+import { useEffect, useState } from "react";
+import { apiFetch } from "@/app/lib/api";
+import { Loader2 } from "lucide-react";
 
 export default function UserHomePage() {
   const [summary, setSummary] = useState(null);
@@ -10,57 +10,64 @@ export default function UserHomePage() {
   const [error, setError] = useState(null);
 
   useEffect(() => {
-    const fetchSummary = async () => {
+    async function fetchSummary() {
       try {
-        setLoading(true);
-        const res = await fetch(`${base}/api/user/summary`, {
-          credentials: "include",
-          headers: {
-            "Content-Type": "application/json",
-          },
-        });
-
-        if (!res.ok) {
-          throw new Error(`HTTP Error Status: ${res.status}`);
-        }
-
-        const data = await res.json();
+        const data = await apiFetch("/api/user/summary");
         setSummary(data);
+        setError(null);
       } catch (err) {
-        console.error("Fetch Error:", err.message);
-        setError("Summary data load failed.");
+        setError(
+          err.status === 401
+            ? "Unauthorized. Please log in again."
+            : "Summary data load failed."
+        );
       } finally {
         setLoading(false);
       }
-    };
+    }
 
     fetchSummary();
   }, []);
 
-  if (loading) return <div className="p-6 text-center text-gray-400">Loading User Dashboard...</div>;
-  if (error) return <div className="p-6 text-center text-red-500">{error}</div>;
+  if (loading)
+    return (
+      <div className="flex justify-center p-10">
+        <Loader2 className="animate-spin text-violet-500" size={28} />
+      </div>
+    );
+
+  if (error)
+    return <div className="p-8 text-center text-red-500 font-medium">{error}</div>;
 
   return (
-    <div className="p-6 space-y-6">
-      <h1 className="text-2xl font-bold text-white">User Dashboard</h1>
-      
+    <div className="p-2 md:p-6 space-y-6">
+      <h1 className="text-2xl font-bold text-slate-800">User Dashboard</h1>
+
       {/* 📊 Summary Cards */}
       <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
-        <div className="p-4 bg-zinc-900 border border-zinc-800 rounded-xl">
-          <h3 className="text-sm text-gray-400">Total Orders</h3>
-          <p className="text-2xl font-bold text-white">{summary?.totalOrders || 0}</p>
+        <div className="p-5 bg-white border rounded-xl shadow">
+          <h3 className="text-sm text-gray-500">Total Orders</h3>
+          <p className="text-2xl font-bold text-slate-800 mt-1">
+            {summary?.totalOrders || 0}
+          </p>
         </div>
-        <div className="p-4 bg-zinc-900 border border-zinc-800 rounded-xl">
-          <h3 className="text-sm text-gray-400">Pending Orders</h3>
-          <p className="text-2xl font-bold text-white">{summary?.pendingOrders || 0}</p>
+        <div className="p-5 bg-white border rounded-xl shadow">
+          <h3 className="text-sm text-gray-500">Pending Orders</h3>
+          <p className="text-2xl font-bold text-slate-800 mt-1">
+            {summary?.pendingOrders || 0}
+          </p>
         </div>
-        <div className="p-4 bg-zinc-900 border border-zinc-800 rounded-xl">
-          <h3 className="text-sm text-gray-400">Total Spent</h3>
-          <p className="text-2xl font-bold text-white">${summary?.totalSpent || 0}</p>
+        <div className="p-5 bg-white border rounded-xl shadow">
+          <h3 className="text-sm text-gray-500">Total Spent</h3>
+          <p className="text-2xl font-bold text-slate-800 mt-1">
+            ৳ {summary?.totalSpent || 0}
+          </p>
         </div>
-        <div className="p-4 bg-zinc-900 border border-zinc-800 rounded-xl">
-          <h3 className="text-sm text-gray-400">Reviews Given</h3>
-          <p className="text-2xl font-bold text-white">{summary?.totalReviews || 0}</p>
+        <div className="p-5 bg-white border rounded-xl shadow">
+          <h3 className="text-sm text-gray-500">Reviews Given</h3>
+          <p className="text-2xl font-bold text-slate-800 mt-1">
+            {summary?.totalReviews || 0}
+          </p>
         </div>
       </div>
     </div>
