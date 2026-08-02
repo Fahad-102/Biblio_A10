@@ -13,16 +13,17 @@ export default function AdminChart() {
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-    // ১. প্রথমে সেশন চেক করা
-    fetch(`${base}/api/auth/get-session`, {
+    // ১. get-session হবে frontend এর নিজের origin থেকে (relative path)
+    //    কারণ Better Auth routes চলে Next.js app এ, Express backend এ না
+    fetch(`/api/auth/get-session`, {
       method: "GET",
       credentials: "include",
     })
       .then((res) => res.json())
       .then((sessionData) => {
         setSession(sessionData);
-        
-        // ২. সেশন পাওয়ার পর অ্যাডমিন ওভারভিউ বা চার্টের ডেটা ফেচ করা
+
+        // ২. সেশন পাওয়ার পর Express backend থেকে admin chart ডেটা fetch
         return fetch(`${base}/api/admin/chart`, {
           method: "GET",
           headers: { "Content-Type": "application/json" },
@@ -50,8 +51,7 @@ export default function AdminChart() {
   return (
     <div className="space-y-6 max-w-7xl mx-auto p-4 md:p-6">
       <h1 className="text-3xl font-bold tracking-tight text-slate-800">Admin Analytics & Charts</h1>
-      
-      {/* Category Stats Bar Chart */}
+
       <div className="bg-white p-6 rounded-3xl shadow-lg border border-slate-100">
         <h3 className="text-xl font-bold mb-4 text-slate-700">Books by Category</h3>
         <div className="h-80 w-full">

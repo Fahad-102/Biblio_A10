@@ -7,6 +7,7 @@ import {
   CheckCircle,
   DollarSign,
   Loader2,
+  AlertTriangle,
 } from "lucide-react";
 
 const baseURI =
@@ -17,43 +18,47 @@ const baseURI =
 export default function LibrarianOverviewPage() {
   const [data, setData] = useState(null);
   const [loading, setLoading] = useState(true);
+  const [error, setError] = useState(null);
 
   useEffect(() => {
     let isMounted = true;
 
     const fetchStats = async () => {
-      // যেসব সম্ভাব্য এন্ডপয়েন্ট টেস্ট করা হবে
-      const endpoints = [
-        `${baseURI}/api/librarian/stats`,
-        `${baseURI}/api/dashboard-stats`,
-        `${baseURI}/api/user/summary`,
-      ];
+      try {
+        const res = await fetch(`${baseURI}/api/librarian/stats`, {
+          credentials: "include",
+          cache: "no-store",
+        });
 
-      for (const url of endpoints) {
-        try {
-          const res = await fetch(url, {
-            credentials: "include",
-            cache: "no-store",
-          });
+        if (!res.ok) {
+          const errBody = await res.text().catch(() => "");
+          console.error(`[Librarian Stats Failed] Status: ${res.status}`, errBody);
 
-          if (res.ok) {
-            const result = await res.json();
-            if (isMounted) {
-              setData(result);
-              setLoading(false);
+          if (isMounted) {
+            if (res.status === 401) {
+              setError("Session expired or unauthorized. Please log in again.");
+            } else if (res.status === 403) {
+              setError("You don't have permission to view this data.");
+            } else {
+              setError(`Failed to load stats (status ${res.status}).`);
             }
-            return; // সফল হলে লুপ বন্ধ হবে
-          } else {
-            const errBody = await res.text();
-            console.warn(`[Stats Endpoint Failed] ${url} -> Status: ${res.status}`, errBody);
+            setLoading(false);
           }
-        } catch (err) {
-          console.error(`[Stats Fetch Error] ${url}:`, err);
+          return;
+        }
+
+        const result = await res.json();
+        if (isMounted) {
+          setData(result);
+          setLoading(false);
+        }
+      } catch (err) {
+        console.error("[Librarian Stats Fetch Error]:", err);
+        if (isMounted) {
+          setError("Network error — could not reach the server.");
+          setLoading(false);
         }
       }
-
-      // কোনো এন্ডপয়েন্টই কাজ না করলে লোডিং বন্ধ করবে
-      if (isMounted) setLoading(false);
     };
 
     fetchStats();
@@ -71,19 +76,23 @@ export default function LibrarianOverviewPage() {
     );
   }
 
-  // Safe Fallback calculation for metrics
-  const myBooksCount = data?.myBooks ?? data?.totalBooks ?? data?.booksCount ?? 0;
-  const pendingRequests = data?.pendingRequests ?? data?.pendingCount ?? 0;
-  const approvedBooks =
-    data?.approvedBooks ??
-    data?.approvedCount ??
-    (myBooksCount - pendingRequests > 0 ? myBooksCount - pendingRequests : 0);
-  const totalEarnings = data?.totalEarnings ?? data?.earnings ?? 0;
+  if (error) {
+    return (
+      <div className="flex flex-col items-center justify-center h-[60vh] text-center gap-3">
+        <AlertTriangle className="text-red-400" size={32} />
+        <p className="text-red-400 font-medium">{error}</p>
+      </div>
+    );
+  }
+
+  const myBooksCount = data?.myBooks ?? 0;
+  const pendingRequests = data?.pendingRequests ?? 0;
+  const approvedBooks = data?.approvedBooks ?? 0;
+  const totalEarnings = data?.totalEarnings ?? 0;
 
   return (
     <div className="space-y-6 p-2 md:p-6">
 
-      {/* Header */}
       <div>
         <h1 className="text-2xl md:text-3xl font-bold text-zinc-900 dark:text-white">
           Librarian Overview
@@ -93,10 +102,8 @@ export default function LibrarianOverviewPage() {
         </p>
       </div>
 
-      {/* Cards */}
       <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
 
-        {/* My Books */}
         <div className="bg-zinc-900 border border-zinc-800 rounded-xl p-5 shadow-sm">
           <div className="flex items-center justify-between">
             <BookOpen className="text-violet-400" size={24} />
@@ -107,7 +114,6 @@ export default function LibrarianOverviewPage() {
           </p>
         </div>
 
-        {/* Pending Requests */}
         <div className="bg-zinc-900 border border-zinc-800 rounded-xl p-5 shadow-sm">
           <div className="flex items-center justify-between">
             <Clock className="text-yellow-400" size={24} />
@@ -118,7 +124,6 @@ export default function LibrarianOverviewPage() {
           </p>
         </div>
 
-        {/* Approved Books */}
         <div className="bg-zinc-900 border border-zinc-800 rounded-xl p-5 shadow-sm">
           <div className="flex items-center justify-between">
             <CheckCircle className="text-green-400" size={24} />
@@ -129,7 +134,6 @@ export default function LibrarianOverviewPage() {
           </p>
         </div>
 
-        {/* Earnings */}
         <div className="bg-zinc-900 border border-zinc-800 rounded-xl p-5 shadow-sm">
           <div className="flex items-center justify-between">
             <DollarSign className="text-green-400" size={24} />
@@ -142,7 +146,6 @@ export default function LibrarianOverviewPage() {
 
       </div>
 
-      {/* System Status Section */}
       <div className="bg-zinc-900 border border-zinc-800 rounded-xl p-5 mt-6 shadow-sm">
         <h2 className="text-white font-semibold mb-1">
           System Status
