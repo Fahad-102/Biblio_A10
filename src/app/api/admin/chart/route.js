@@ -11,7 +11,7 @@ export async function GET(request) {
     const headersList = await headers();
     const authHeader = headersList.get("authorization");
     
-    // সঠিক লজিক: যদি হেডার না থাকে অথবা সেটি Bearer দিয়ে শুরু না হয়
+    // ফ্রন্টএন্ড থেকে পাঠানো Bearer টোকেন চেক করা হচ্ছে
     if (!authHeader || !authHeader.startsWith("Bearer ")) {
       return NextResponse.json(
         { error: "Unauthorized. No token provided." },
@@ -19,9 +19,15 @@ export async function GET(request) {
       );
     }
 
+    const token = authHeader.split(" ")[1];
+
+    // এখানে আপনার টোকেন ডিকোড বা ভেরিফিকেশন লজিক দিতে পারেন 
+    // (যদি টোকেন ভ্যালিড না হয় তবে 401 রিটার্ন করুন)
+
     await client.connect();
     const db = client.db(dbName);
 
+    // ড্যাশবোর্ডের পরিসংখ্যানের জন্য ডেটা সংগ্রহ
     const totalUsers = await db.collection("user").countDocuments();
     const totalBooks = await db.collection("books").countDocuments();
     const pendingBooks = await db.collection("books").countDocuments({ status: "pending" });
