@@ -12,8 +12,8 @@ export default function DashboardOverview({ role = 'admin', token }) {
       ? "https://biblio-drop-a10.vercel.app" 
       : "http://localhost:5000";
 
-    // Role dynamic API Endpoint determination
-    let endpoint = `${API_BASE_URL}/api/admin/overview`;
+    // Role dynamic API Endpoint determination (অ্যাডমিনের জন্য chart এপিআই সেট করা হয়েছে)
+    let endpoint = `${API_BASE_URL}/api/admin/chart`;
     if (role === 'librarian') {
       endpoint = `${API_BASE_URL}/api/librarian/overview`;
     } else if (role === 'user') {
