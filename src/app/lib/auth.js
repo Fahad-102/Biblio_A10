@@ -44,6 +44,7 @@ export const auth = betterAuth({
         type: "string",
         required: false,
         defaultValue: "free",
+        input: true, // 🔥 এখানে input: true যোগ করা হয়েছে যাতে সাইন-আপের সময় plan ফিল্ডটি সেভ হতে পারে
       },
     },
   },
