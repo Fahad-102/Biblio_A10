@@ -2,16 +2,30 @@ const { betterAuth } = require("better-auth");
 const { MongoClient } = require("mongodb");
 const { mongodbAdapter } = require("better-auth/adapters/mongodb");
 
-const uri = process.env.MONGODB_URI;
+const uri = process.env.MONGODB_URI || process.env.MONGO_URI;
 const dbName = process.env.AUTH_DB_NAME || "biblio-drop_db";
 
 if (!uri) throw new Error("Missing MONGODB_URI in environment variables");
 
-const client = new MongoClient(uri);
-const db = client.db(dbName);
+// Serverless-friendly MongoDB connection caching
+let client;
+let clientPromise;
+
+if (process.env.NODE_ENV === "development") {
+  if (!global._mongoClientPromise) {
+    client = new MongoClient(uri);
+    global._mongoClientPromise = client.connect();
+  }
+  clientPromise = global._mongoClientPromise;
+} else {
+  client = new MongoClient(uri);
+  clientPromise = client.connect();
+}
+
+const db = clientPromise.then(client => client.db(dbName));
 
 const auth = betterAuth({
-  baseURL: process.env.BETTER_AUTH_URL || "http://localhost:5000",
+  baseURL: process.env.BETTER_AUTH_URL || "https://biblio-server-a10.vercel.app",
   secret: process.env.BETTER_AUTH_SECRET,
 
   trustedOrigins: [
@@ -21,6 +35,7 @@ const auth = betterAuth({
     "https://biblio-server-a10.vercel.app"
   ],
 
+  // Pass the promise/db correctly to the mongodb adapter
   database: mongodbAdapter(db),
 
   emailAndPassword: {
@@ -71,6 +86,5 @@ const auth = betterAuth({
     },
   },
 });
-
 
 module.exports = { auth };
