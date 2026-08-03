@@ -1,7 +1,6 @@
 const { betterAuth } = require("better-auth");
 const { MongoClient } = require("mongodb");
 const { mongodbAdapter } = require("better-auth/adapters/mongodb");
-const { jwt } = require("better-auth/plugins");
 
 const uri = process.env.MONGODB_URI;
 const dbName = process.env.AUTH_DB_NAME || "biblio-drop_db";
@@ -67,16 +66,4 @@ export const auth = betterAuth({
       partitioned: true,   
     },
   },
-
-  plugins: [
-    jwt({
-      jwt: {
-        definePayload: (user) => ({
-          id: user.id,
-          email: user.email,
-          role: user.role?.toLowerCase() || "user",
-        }),
-      },
-    }),
-  ],
 });

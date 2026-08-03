@@ -41,7 +41,7 @@ export default function AdminDashboard() {
 
   return (
     <div className="space-y-8 max-w-7xl mx-auto p-2 md:p-6">
-      <div className="rounded-3xl bg-gradient-to-r from-purple-900 via-purple-700 to-slate-950 text-white p-8 shadow-xl">
+      <div className="rounded-3xl bg-linear-to-r from-purple-900 via-purple-700 to-slate-950 text-white p-8 shadow-xl">
         <h1 className="text-4xl font-black tracking-tight">Admin Dashboard</h1>
         <p className="opacity-80 mt-2 text-sm md:text-base">Manage the entire library ecosystem from one central panel.</p>
       </div>
@@ -50,7 +50,7 @@ export default function AdminDashboard() {
         {cards.map((card) => {
           const Icon = card.icon;
           return (
-            <div key={card.title} className={`bg-gradient-to-br ${card.color} rounded-3xl p-6 text-white shadow-xl hover:scale-[1.02] transition-transform duration-300`}>
+            <div key={card.title} className={`bg-linear-to-br ${card.color} rounded-3xl p-6 text-white shadow-xl hover:scale-[1.02] transition-transform duration-300`}>
               <div className="flex justify-between items-start">
                 <div>
                   <p className="text-sm opacity-80 font-medium">{card.title}</p>
@@ -79,7 +79,7 @@ export default function AdminDashboard() {
             <Summary title="Revenue" value={`৳${stats.totalRevenue}`} color="text-purple-700" />
           </div>
         </div>
-        <div className="rounded-3xl bg-gradient-to-br from-slate-950 via-purple-950 to-red-700 text-white p-8 shadow-xl flex flex-col justify-center">
+        <div className="rounded-3xl bg-linear-to-br from-slate-950 via-purple-950 to-red-700 text-white p-8 shadow-xl flex flex-col justify-center">
           <h2 className="text-3xl font-black">Welcome Back 👋</h2>
           <p className="mt-5 opacity-80 leading-8 text-slate-200">Monitor users, books, payments, pending approvals, and overall platform transactions seamlessly.</p>
         </div>

@@ -2,20 +2,24 @@ import { NextResponse } from 'next/server'
 import { auth } from './lib/auth'
 import { headers } from 'next/headers'
  
-export async function proxy(request) {
-    const session =  await auth.api.getSession({
+export async function middleware(request) {
+    const session = await auth.api.getSession({
         headers: await headers()
     })
 
-    if(session?.user?.role == "user" && session?.user?.plan == "free"){
+  
+    if (!session) {
+        return NextResponse.redirect(new URL('/signin', request.url))
+    }
+
+    
+    if (session?.user?.role === "user" && session?.user?.plan === "free") {
         return NextResponse.redirect(new URL('/pricing', request.url))
     }
 
-    if(!session){
-        return NextResponse.redirect(new URL('/home', request.url))
-    }
-    }
+    return NextResponse.next()
+}
 
 export const config = {
-  matcher: ['/profile','/dashboard/user',],
+    matcher: ['/profile', '/dashboard/user'],
 }

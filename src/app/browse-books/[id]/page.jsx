@@ -4,28 +4,12 @@ import { getBooksById } from "@/app/lib/api/books";
 import { Button } from "@heroui/react";
 import Image from "next/image";
 import Link from "next/link";
-import { headers } from "next/headers"; 
-import { auth } from "@/app/lib/auth";
 import { EditModal } from "@/app/component/EditModal";
 
 const BookDetailsPage = async ({ params }) => {
   const { id } = await params;
   const book = await getBooksById(id);
   console.log("Current ID from params:", id);
-
-  const session = await auth.api.getSession({
-    headers: await headers(),
-  });
-  
-  const userRole = session?.user?.role; 
-  
-  const currentUserId = session?.user?.id || session?.user?._id;
-
-  const bookOwnerId = book?.userId ? String(book.userId).trim() : null;
-  const loggedInUserId = currentUserId ? String(currentUserId).trim() : null;
-
-  const isOwner = bookOwnerId && loggedInUserId && bookOwnerId === loggedInUserId;
-  const canModify = userRole === "admin" || (userRole === "librarian" && isOwner);
 
   if (!book) {
     return (
@@ -42,23 +26,11 @@ const BookDetailsPage = async ({ params }) => {
     <div className="min-h-screen bg-gray-50 py-12 px-4 sm:px-6 lg:px-8">
       <div className="max-w-5xl mx-auto bg-white rounded-3xl shadow-xl overflow-hidden border border-gray-100">
         
-        {canModify ? (
-          <div className="flex justify-end gap-2 m-5">
-            <EditModal book={book} />
-            <DeleteAlert book={book} />
-          </div>
-        ) : (
-          userRole === "librarian" && (
-           <div className="bg-purple-50 border-b border-purple-100 text-purple-700 px-6 py-3.5 text-xs sm:text-sm flex flex-col sm:flex-row items-start sm:items-center gap-2 font-medium w-full">
-              <div className="flex items-center gap-2 shrink-0">
-                💡 <span className="font-bold text-purple-900 whitespace-nowrap">Note for Examiner:</span> 
-              </div>
-              <p className="text-gray-700 leading-relaxed">
-                You are logged in as a <strong>Librarian</strong>. Since you didnt upload this specific book, the Edit/Delete actions are hidden for ownership-based security.
-              </p>
-            </div>
-          )
-        )}
+        {/* যেহেতু ওনারশিপ বা রোল চেক বাদ দেওয়া হয়েছে, তাই যে কেউ এখন এডিট ও ডিলিট করতে পারবে */}
+        <div className="flex justify-end gap-2 m-5">
+          <EditModal book={book} />
+          <DeleteAlert book={book} />
+        </div>
 
         <div className="grid grid-cols-1 md:grid-cols-2 gap-8 p-6 sm:p-10">
           <div className="flex flex-col justify-center items-center bg-gray-50 rounded-2xl p-6 relative aspect-4/5 w-full max-w-md mx-auto shadow-inner group">
@@ -98,10 +70,8 @@ const BookDetailsPage = async ({ params }) => {
               </div>
 
               <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 pt-2">
-                {/* এখানে disabled প্রপসটি বাদ দেওয়া হয়েছে যাতে বাটন সচল থাকে */}
                 <BuyNowButton
                   book={book}
-                  session={session}
                 />
                 <Button 
                   variant="bordered" className="w-full font-bold py-6 rounded-xl">
