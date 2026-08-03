@@ -44,8 +44,8 @@ export default function SignInPage() {
         },
         onSuccess: async () => {
           try {
-            // 🔥 ডাটাবেজ থেকে আসল রোল সরাসরি ফেচ করা হচ্ছে
-            const res = await fetch(`http://localhost:5000/api/user-role?email=${userFormData.email}`);
+            
+            const res = await fetch(`https://biblio-server-a10.vercel.app/api/user-role?email=${userFormData.email}`);
             const data = await res.json();
             
             const userRole = data?.role ? data.role.toLowerCase() : "user";
@@ -77,12 +77,12 @@ export default function SignInPage() {
     });
   };
   
-  const handleGoogleSignIn = async () => {
+ const handleGoogleSignIn = async () => {
     const id = toast.loading("Connecting to Google...");
     try {
       await authClient.signIn.social({
         provider: "google",
-        callbackURL: "/dashboard/user",
+        callbackURL: "https://biblio-drop-a10.vercel.app/dashboard/user",
       });
     } catch (error) {
       console.error("Google Sign-In Error:", error);

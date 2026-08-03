@@ -76,7 +76,7 @@ export default function SignUpPage() {
     try {
       await authClient.signIn.social({
         provider: "google",
-        callbackURL: "/",
+        callbackURL: process.env.NEXT_PUBLIC_CLIENT_URL || "https://biblio-drop-a10.vercel.app/",
       });
     } catch (error) {
       console.error(error);
