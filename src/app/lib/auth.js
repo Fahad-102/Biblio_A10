@@ -10,8 +10,7 @@ if (!uri) throw new Error("Missing MONGODB_URI in environment variables");
 const client = new MongoClient(uri);
 const db = client.db(dbName);
 
-export const auth = betterAuth({
-  // 🔥 ডায়নামিক বেস ইউআরএল যা প্রডাকশন এবং লোকালহোস্ট দুটোই অটো হ্যান্ডেল করবে
+const auth = betterAuth({
   baseURL: process.env.BETTER_AUTH_URL || "http://localhost:5000",
   secret: process.env.BETTER_AUTH_SECRET,
 
@@ -72,3 +71,6 @@ export const auth = betterAuth({
     },
   },
 });
+
+
+module.exports = { auth };
