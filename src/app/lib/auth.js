@@ -11,12 +11,15 @@ const client = new MongoClient(uri);
 const db = client.db(dbName);
 
 export const auth = betterAuth({
-  baseURL: process.env.BETTER_AUTH_URL || "http://localhost:3000",
+  // 🔥 ডায়নামিক বেস ইউআরএল যা প্রডাকশন এবং লোকালহোস্ট দুটোই অটো হ্যান্ডেল করবে
+  baseURL: process.env.BETTER_AUTH_URL || "http://localhost:5000",
   secret: process.env.BETTER_AUTH_SECRET,
 
   trustedOrigins: [
     "http://localhost:3000",
-    "https://biblio-drop-a10.vercel.app"
+    "http://localhost:5000",
+    "https://biblio-drop-a10.vercel.app",
+    "https://biblio-server-a10.vercel.app"
   ],
 
   database: mongodbAdapter(db),
@@ -44,7 +47,7 @@ export const auth = betterAuth({
         type: "string",
         required: false,
         defaultValue: "free",
-        input: true, // 🔥 এখানে input: true যোগ করা হয়েছে যাতে সাইন-আপের সময় plan ফিল্ডটি সেভ হতে পারে
+        input: true,
       },
     },
   },
@@ -63,7 +66,8 @@ export const auth = betterAuth({
 
   advanced: {
     defaultCookieAttributes: {
-      sameSite: "none",        secure: true,        
+      sameSite: "none",        
+      secure: true,        
       partitioned: true,   
     },
   },
