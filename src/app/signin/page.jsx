@@ -42,27 +42,36 @@ export default function SignInPage() {
             autoClose: 3000 
           });
         },
-        onSuccess: (ctx) => {
-          // 🔥 ডাটাবেজ থেকে আসল রোল সরাসরি রিড করা হচ্ছে
-          const userRole = ctx.data?.user?.role?.toLowerCase() || "user";
+        onSuccess: async () => {
+          try {
+            // 🔥 ডাটাবেজ থেকে আসল রোল সরাসরি ফেচ করা হচ্ছে
+            const res = await fetch(`http://localhost:5000/api/user-role?email=${userFormData.email}`);
+            const data = await res.json();
+            
+            const userRole = data?.role ? data.role.toLowerCase() : "user";
 
-          toast.update(id, { 
-            render: "Welcome back! Redirecting... 🎉", 
-            type: "success", 
-            isLoading: false, 
-            autoClose: 1500 
-          });
-          
-          // 🔥 ডাটাবেজের রোল অনুযায়ী সঠিক ড্যাশবোর্ডে রিডাইরেক্ট
-          setTimeout(() => {
-            if (userRole === "admin") {
-              window.location.href = "/dashboard/admin";
-            } else if (userRole === "librarian") {
-              window.location.href = "/dashboard/librarian";
-            } else {
-              window.location.href = "/dashboard/user";
-            }
-          }, 1000);
+            toast.update(id, { 
+              render: "Welcome back! Redirecting... 🎉", 
+              type: "success", 
+              isLoading: false, 
+              autoClose: 1500 
+            });
+            
+            // 🔥 সঠিক রোল অনুযায়ী ড্যাশবোর্ডে রিডাইরেক্ট
+            setTimeout(() => {
+              if (userRole === "admin") {
+                window.location.href = "/dashboard/admin";
+              } else if (userRole === "librarian") {
+                window.location.href = "/dashboard/librarian";
+              } else {
+                window.location.href = "/dashboard/user";
+              }
+            }, 1000);
+
+          } catch (err) {
+            console.error("Role fetch error:", err);
+            window.location.href = "/dashboard/user";
+          }
         }
       }
     });
