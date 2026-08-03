@@ -1,12 +1,9 @@
-const BACKEND_URL =
-  process.env.NEXT_PUBLIC_API_URL ||
-  process.env.NEXT_PUBLIC_SERVER_URL ||
-  "http://localhost:5000";
+const BACKEND_URL = "https://biblio-server-a10.vercel.app";
 
 export async function apiFetch(path, options = {}) {
   const res = await fetch(`${BACKEND_URL}${path}`, {
     ...options,
-    credentials: "include", // ব্রাউজারের সেশন কুকি সরাসরি সার্ভারে পাঠিয়ে দিবে
+    credentials: "include", 
     headers: {
       "Content-Type": "application/json",
       ...(options.headers || {}),
